@@ -1,0 +1,386 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+<head>
+    <!--Setting-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <meta http-equiv="Cache-Control" content="no-siteapp">
+    <meta http-equiv="Cache-Control" content="no-transform">
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta name="apple-mobile-web-app-capable" content="勾三股四">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no,email=no,adress=no">
+    <meta name="browsermode" content="application">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="theme-version" content="1.3.0">
+    <meta name="root" content="/">
+    <link rel="dns-prefetch" href="http://example.com">
+    <!--SEO-->
+
+<meta name="keywords" content="Linux从入门到放弃" />
+
+
+<meta name="description" content="平滑升级流程
+
+
+将旧Nginx二进制文件换成新Nginx程序文件（注意先备份)
+向master进程发送USR2信号启动新nginx进程
+master进程修改pid文件名加上后缀.oldbin,..." />
+
+
+<meta name="robots" content="all" />
+<meta name="google" content="all" />
+<meta name="googlebot" content="all" />
+<meta name="verify" content="all" />
+    <!--Title-->
+
+<title>
+    
+    Nginx平滑升级 |
+    
+    勾三股四
+</title>
+
+<link rel="alternate" href="/atom.xml" title="勾三股四" type="application/atom+xml">
+
+
+<link rel="icon" href="./img/favicon.ico">
+
+    
+
+
+<link rel="stylesheet" href="/css/bootstrap.min.css?rev=3.3.7.css">
+<link rel="stylesheet" href="/./img/favicon.ico.css">
+<link rel="stylesheet" href="/css/style.css?rev=@@hash.css">
+
+    
+<div class="hide">
+    <script type="text/javascript">
+    var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+    document.write(unescape("%3Cspan class='cnzz_stat_icon_1263868967 hide' %3E%3Cscript%20src%3D%22https%3A%2F%2Fs95.cnzz.com%2Fz_stat.php%3Fweb_id%3D1272564536%22%3E%3C%2Fscript%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s19.cnzz.com/z_stat.php%3Fid%3D1263868967%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+</div>
+
+
+
+
+    
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<!--[if lte IE 8]>
+<style>
+    html{ font-size: 1em }
+</style>
+<![endif]-->
+<!--[if lte IE 9]>
+<div style="ie">你使用的浏览器版本过低，为了你更好的阅读体验，请更新浏览器的版本或者使用其他现代浏览器，比如Chrome、Firefox、Safari等。</div>
+<![endif]-->
+<body>
+    <header class="main-header"  style="background-image:url(
+    /./img/banner.jpg)"
+     >
+    <div class="main-header-box">
+        <a class="header-avatar" href="/" title='yuankun kun'>
+            <img src="/img/avatar.jpg" alt="logo头像" class="img-responsive center-block">
+        </a>
+        <div class="branding">
+            <!--<h2 class="text-hide">Snippet主题,从未如此简单有趣</h2>-->
+            
+            <h2>
+                深夜是学习的粥
+            </h2>
+            
+        </div>
+    </div>
+</header>
+    <nav class="main-navigation">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="navbar-header"><span class="nav-toggle-button collapsed pull-right" data-toggle="collapse" data-target="#main-menu" id="mnav">
+                        <span class="sr-only"></span>
+                        <i class="fa fa-bars"></i>
+                    </span>
+                    <a class="navbar-brand" href="http://example.com">
+                        勾三股四</a>
+                </div>
+                <div class="collapse navbar-collapse" id="main-menu">
+                    <ul class="menu">
+                        
+                        <li role="presentation" class="text-center">
+                            <a href="/"><i class="fa "></i>
+                                首页</a>
+                        </li>
+                        
+                        <li role="presentation" class="text-center">
+                            <a href="/categories"><i class="fa "></i>
+                                分类</a>
+                        </li>
+                        
+                        <li role="presentation" class="text-center">
+                            <a href="/tags"><i class="fa "></i>
+                                标签</a>
+                        </li>
+                        
+                        <li role="presentation" class="text-center">
+                            <a href="/about"><i class="fa "></i>
+                                关于</a>
+                        </li>
+                        
+                        <li role="presentation" class="text-center">
+                            <a href="/archives/"><i class="fa "></i>
+                                时间轴</a>
+                        </li>
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+    <section class="content-wrap">
+        <div class="container">
+            <div class="row">
+                <main class="col-md-8 main-content m-post">
+                    <p id="process"></p>
+<article class="post">
+    <div class="post-head">
+        <h1 id="Nginx平滑升级">
+            
+            Nginx平滑升级
+            
+        </h1>
+        <div class="post-meta">
+    
+    <span class="categories-meta fa-wrap">
+        <i class="fa fa-folder-open-o"></i>
+        <a class="category-link" href="/categories/Nginx/">Nginx</a>
+    </span>
+    
+    
+    <span class="fa-wrap">
+        <i class="fa fa-tags"></i>
+        <span class="tags-meta">
+            
+            <a class="tag-none-link" href="/tags/Linux%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83/" rel="tag">Linux从入门到放弃</a>
+            
+        </span>
+    </span>
+    
+    
+    
+    <span class="fa-wrap">
+        <i class="fa fa-clock-o"></i>
+        <span class="date-meta">
+            2023/01/07</span>
+    </span>
+    
+    
+</div>
+        
+        
+    </div>
+    
+    <div class="post-body post-content">
+        <h1 id="平滑升级流程"><a href="#平滑升级流程" class="headerlink" title="平滑升级流程"></a>平滑升级流程</h1><p><img src="/../image.assets/1673076066017.png" alt="1673076066017"></p>
+<p><img src="/../image.assets/1673076087140.png" alt="1673076087140"></p>
+<ul>
+<li>将旧Nginx二进制文件换成新Nginx程序文件（注意先备份)</li>
+<li>向master进程发送USR2信号启动新nginx进程</li>
+<li>master进程修改pid文件名加上后缀.oldbin,成为nginx.pid.oldbin</li>
+<li>master进程用新Nginx文件启动新master进程及worker子进程成为旧master的子进程,系统中将有新旧两个Nginx主进程和对应的worker子进程并存<br>当前新的请求仍然由旧Nginx的worker进程进行处理,将新生成的master进程的PID存放至新生成的<br>pid文件nginx.pid</li>
+<li>向旧的Nginx服务进程发送WINCH信号，使旧的Nginx worker进程平滑停止</li>
+<li>向旧master进程发送QUIT信号，关闭旧master，并删除Nginx.pid.oldbin文件</li>
+<li>如果发现升级有问题,可以回滚∶向旧master发送HUP，向新master发送QUIT</li>
+</ul>
+<h1 id="范例：Nginx1-18-0版本升级到1-20-2"><a href="#范例：Nginx1-18-0版本升级到1-20-2" class="headerlink" title="范例：Nginx1.18.0版本升级到1.20.2"></a>范例：Nginx1.18.0版本升级到1.20.2</h1><h2 id="Nginx1-18-0编译安装"><a href="#Nginx1-18-0编译安装" class="headerlink" title="Nginx1.18.0编译安装"></a>Nginx1.18.0编译安装</h2><p>官方源码包下载地址：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://nginx.org/en/download.html</span><br></pre></td></tr></table></figure>
+
+<p>范例：编译安装</p>
+<ul>
+<li><p>系统centos8.5</p>
+</li>
+<li><p>Nginx版本：1.18.0</p>
+</li>
+<li><p>安装扩展依赖</p>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@centos8 ~]# yum -y install gcc pcre-devel openssl-devel zlib-devel</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>创建用户和组</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">groupadd nginx</span><br><span class="line">useradd -s /sbin/nologin -g nginx nginx</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>下载安装包并解压</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@centos8 ~]# cd /usr/local/src/</span><br><span class="line">[root@centos8 ~]# wget https://nginx.org/download/nginx-1.18.0.tar.gz</span><br><span class="line">[root@centos8 src]# tar xf nginx-1.18.0.tar.gz </span><br><span class="line">[root@centos8 src]# cd nginx-1.18.0</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>安装</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[root@centos8 nginx-1.18.0]# ./configure --prefix=/usr/local/src/nginx/ \  # 安装位置</span><br><span class="line">--user=nginx \   # 运行的用户</span><br><span class="line">--group=nginx \</span><br><span class="line">--with-http_ssl_module \</span><br><span class="line">--with-http_v2_module \</span><br><span class="line">--with-http_realip_module \</span><br><span class="line">--with-http_stub_status_module \</span><br><span class="line">--with-http_gzip_static_module \</span><br><span class="line">--with-pcre \</span><br><span class="line">--with-stream \</span><br><span class="line">--with-stream_ssl_module</span><br><span class="line"></span><br><span class="line">[root@centos8 nginx-1.18.0]#make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>修改权限</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@centos8 /]# chown -R nginx.nginx /usr/local/src/nginx/</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>nginx安装完成后有四个主要的目录</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[root@centos8 /]# ll /usr/local/src/nginx/</span><br><span class="line">total 4</span><br><span class="line">drwxr-xr-x. 2 nginx nginx 4096 Jan  4 15:17 conf</span><br><span class="line">drwxr-xr-x. 2 nginx nginx   40 Jan  4 15:17 html</span><br><span class="line">drwxr-xr-x. 2 nginx nginx    6 Jan  4 15:17 logs</span><br><span class="line">drwxr-xr-x. 2 nginx nginx   19 Jan  4 15:17 sbin</span><br><span class="line">[root@centos8 /]# </span><br><span class="line">conf：保存nginx所有的配置文件，其中nginx.conf是nginx服务器的最核心最主要的配置文件，其他</span><br><span class="line">的.conf则是用来配置nginx相关的功能的，例如fastcgi功能使用的是fastcgi.conf和</span><br><span class="line">fastcgi_params两个文件，配置文件一般都有一个样板配置文件，是以.default为后缀，使用时可将其复</span><br><span class="line">制并将default后缀去掉即可。</span><br><span class="line">html目录中保存了nginx服务器的web文件，但是可以更改为其他目录保存web文件,另外还有一个50x的web</span><br><span class="line">文件是默认的错误页面提示页面。</span><br><span class="line">logs：用来保存nginx服务器的访问日志错误日志等日志，logs目录可以放在其他</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>验证版本及编译参数</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@centos8 /]# ln -s /usr/local/src/nginx/sbin/nginx /usr/bin/</span><br><span class="line">[root@centos8 /]# nginx -V</span><br><span class="line">nginx version: nginx/1.18.0</span><br><span class="line">built by gcc 8.5.0 20210514 (Red Hat 8.5.0-4) (GCC) </span><br><span class="line">built with OpenSSL 1.1.1k  FIPS 25 Mar 2021</span><br><span class="line">TLS SNI support enabled</span><br><span class="line">configure arguments: --prefix=/usr/local/src/nginx --user=nginx --group=nginx --with-http_ssl_module --with-http_v2_module --with-http_realip_module --with-http_stub_status_module --with-http_gzip_static_module --with-pcre --with-stream --with-stream_ssl_module</span><br><span class="line">[root@centos8 /]# </span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>创建Nginx启动文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">复制同一版本的nginx的yum安装生成的service文件</span></span><br><span class="line">[root@centos8 ~]# vim /lib/systemd/system/nginx.service </span><br><span class="line"></span><br><span class="line">[Unit]</span><br><span class="line">Description=nginx - high performance web server </span><br><span class="line">Documentation=http://nginx.org/en/docs/</span><br><span class="line">After=network.target</span><br><span class="line"></span><br><span class="line">[Service] </span><br><span class="line">Type=forking</span><br><span class="line">PIDFile=/usr/local/src/nginx/logs/nginx.pid</span><br><span class="line">ExecStartPre=/usr/local/src//nginx/sbin/nginx -t -c /usr/local/src/nginx/conf/nginx.conf</span><br><span class="line">ExecStart=/usr/local/src/nginx/sbin/nginx -c /usr/local/src/nginx/conf/nginx.conf</span><br><span class="line">ExecReload=/bin/kill -s HUP $MAINPID </span><br><span class="line">ExecStop=/bin/kill -s QUIT $MAINPID</span><br><span class="line">PrivateTmp=true</span><br><span class="line"></span><br><span class="line">[Install] </span><br><span class="line">WantedBy=multi-user.target</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>验证启动文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@centos8 ~]#systemctl daemon-reload</span><br><span class="line">[root@centos8 ~]#systemctl enable --now nginx</span><br><span class="line">Created symlink /etc/systemd/system/multi-user.target.wants/nginx.service → /usr/lib/systemd/system/nginx.service.</span><br><span class="line">[root@centos8 ~]# </span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>查看Nginx运行状态</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">[root@centos8 ~]# systemctl status nginx</span><br><span class="line">● nginx.service - nginx - high performance web server</span><br><span class="line">   Loaded: loaded (/usr/lib/systemd/system/nginx.service; enabled; vendor preset: disabled)</span><br><span class="line">   Active: active (running) since Wed 2023-01-04 17:53:00 CST; 2 days ago</span><br><span class="line">     Docs: http://nginx.org/en/docs/</span><br><span class="line"> Main PID: 1595 (nginx)</span><br><span class="line">    Tasks: 2 (limit: 11218)</span><br><span class="line">   Memory: 9.1M</span><br><span class="line">   CGroup: /system.slice/nginx.service</span><br><span class="line">           ├─1595 nginx: master process /usr/local/src/nginx/sbin/nginx -c /usr/local/src/nginx/conf/nginx.conf</span><br><span class="line">           └─1596 nginx: worker process</span><br><span class="line"></span><br><span class="line">Jan 04 17:53:00 centos8 systemd[1]: Starting nginx - high performance web server...</span><br><span class="line">Jan 04 17:53:00 centos8 nginx[1592]: nginx: the configuration file /usr/local/src/nginx/conf/nginx.conf syntax is ok</span><br><span class="line">Jan 04 17:53:00 centos8 nginx[1592]: nginx: configuration file /usr/local/src/nginx/conf/nginx.conf test is successful</span><br><span class="line">Jan 04 17:53:00 centos8 systemd[1]: nginx.service: Failed to parse PID from file /usr/local/src/nginx/logs/nginx.pid: Invalid argument</span><br><span class="line">Jan 04 17:53:00 centos8 systemd[1]: Started nginx - high performance web server.</span><br><span class="line">[root@centos8 ~]# </span><br></pre></td></tr></table></figure>
+
+<h2 id="编译Nginx1-20-2"><a href="#编译Nginx1-20-2" class="headerlink" title="编译Nginx1.20.2"></a>编译Nginx1.20.2</h2><ul>
+<li>下载Nginx1.20.2</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@centos8 ~]# cd /usr/local/src/</span><br><span class="line">[root@centos8 src]# wget https://nginx.org/download/nginx-1.20.2.tar.gz</span><br><span class="line">[root@centos8 src]# tar xf nginx-1.20.2.tar.gz</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>查看旧版本Nginx编译选项</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@centos8 src]# nginx -V</span><br><span class="line">nginx version: nginx/1.18.0</span><br><span class="line">built by gcc 8.5.0 20210514 (Red Hat 8.5.0-4) (GCC) </span><br><span class="line">built with OpenSSL 1.1.1k  FIPS 25 Mar 2021</span><br><span class="line">TLS SNI support enabled</span><br><span class="line">configure arguments: --prefix=/usr/local/src/nginx/ --user=nginx --group=nginx --with-http_ssl_module --with-http_v2_module --with-http_realip_module --with-http_stub_status_module --with-http_gzip_static_module --with-pcre --with-stream --with-stream_ssl_module</span><br><span class="line">[root@centos8 src]# </span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>编译新版本，使用旧版本相同的编译参数选项</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br></pre></td><td class="code"><pre><span class="line">[root@centos8 src]# cd nginx-1.20.2</span><br><span class="line">[root@centos8 nginx-1.20.2]# ./configure --prefix=/usr/local/src/nginx/ --user=nginx --group=nginx --with-http_ssl_module --with-http_v2_module --with-http_realip_module --with-http_stub_status_module --with-http_gzip_static_module --with-pcre --with-stream --with-stream_ssl_module</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">只需要make无需make install</span></span><br><span class="line">[root@centos8 nginx-1.20.2]# make</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">编译完的软件存在objs/nginx</span></span><br><span class="line">[root@centos8 nginx-1.20.2]# ll objs/</span><br><span class="line">total 7684</span><br><span class="line">-rw-r--r--. 1 root root   18498 Jan  7 15:29 autoconf.err</span><br><span class="line">-rw-r--r--. 1 root root   53217 Jan  7 15:29 Makefile</span><br><span class="line">-rwxr-xr-x. 1 root root 7697296 Jan  7 15:31 nginx</span><br><span class="line">-rw-r--r--. 1 root root    5557 Jan  7 15:31 nginx.8</span><br><span class="line">-rw-r--r--. 1 root root    7906 Jan  7 15:29 ngx_auto_config.h</span><br><span class="line">-rw-r--r--. 1 root root     657 Jan  7 15:29 ngx_auto_headers.h</span><br><span class="line">-rw-r--r--. 1 root root    8758 Jan  7 15:29 ngx_modules.c</span><br><span class="line">-rw-r--r--. 1 root root   60056 Jan  7 15:31 ngx_modules.o</span><br><span class="line">drwxr-xr-x. 9 root root      91 Jan  7 15:29 src</span><br><span class="line">[root@centos8 nginx-1.20.2]# </span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看两个Nginx版本</span></span><br><span class="line">[root@centos8 nginx-1.20.2]# ./objs/nginx -v</span><br><span class="line">nginx version: nginx/1.20.2</span><br><span class="line">[root@centos8 nginx-1.20.2]# /usr/local/src/nginx/sbin/nginx -v</span><br><span class="line">nginx version: nginx/1.18.0</span><br><span class="line">[root@centos8 nginx-1.20.2]#</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">备份旧版本Nginx</span></span><br><span class="line">[root@centos8 nginx-1.20.2]# cp /usr/local/src/nginx/sbin/nginx /usr/local/src/nginx/sbin/nginx.old</span><br><span class="line">[root@centos8 nginx-1.20.2]# ll /usr/local/src/nginx/sbin/</span><br><span class="line">total 14776</span><br><span class="line">-rwxr-xr-x. 1 root root 7562368 Jan  4 17:39 nginx</span><br><span class="line">-rwxr-xr-x. 1 root root 7562368 Jan  7 15:36 nginx.old</span><br><span class="line">[root@centos8 nginx-1.20.2]# </span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">把新版本的nginx命令复制过去覆盖旧版本程序文件,注意:需要加 -f 选项强制覆盖,否则会提示Text file busy</span></span><br><span class="line">[root@centos8 nginx-1.20.2]# cp -f objs/nginx /usr/local/src/nginx/sbin/</span><br><span class="line">cp: overwrite &#x27;/usr/local/src/nginx/sbin/nginx&#x27;? y</span><br><span class="line">[root@centos8 nginx-1.20.2]#</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">检测是否存在问题，必须做的</span></span><br><span class="line">[root@centos8 nginx-1.20.2]# /usr/local/src/nginx/sbin/nginx -t</span><br><span class="line">nginx: the configuration file /usr/local/src/nginx//conf/nginx.conf syntax is ok</span><br><span class="line">nginx: configuration file /usr/local/src/nginx//conf/nginx.conf test is successful</span><br><span class="line">[root@centos8 nginx-1.20.2]# </span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">发送信号USR2 平滑升级可执行程序,将存储有旧版本主进程PID的文件重命名为nginx.pid.oldbin，并启动新的nginx</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">此时两个master的进程都在运行,只是旧的master不在监听,由新的master监听80</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">此时Nginx开启一个新的master进程，这个master进程会生成新的worker进程，这就是升级后的Nginx进程，此时老的进程不会自动退出，但是当接收到新的请求不作处理而是交给新的进程处理。</span></span><br><span class="line"></span><br><span class="line">[root@centos8 nginx-1.20.2]# kill -USR2 `cat /usr/local/src/nginx/logs/nginx.pid `</span><br><span class="line">[root@centos8 nginx-1.20.2]# </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">可以看到两个master,新的master是旧版master的子进程,并生成新版的worker进程</span></span><br><span class="line">[root@centos8 nginx-1.20.2]# ps aux | grep nginx</span><br><span class="line">root        1595  0.0  0.1  42452  2724 ?        Ss   Jan05   0:00 nginx: master process /usr/local/src/nginx/sbin/nginx -c /usr/local/src/nginx/conf/nginx.conf</span><br><span class="line">nginx       1596  0.0  0.2  77120  4612 ?        S    Jan05   0:00 nginx: worker process</span><br><span class="line">root        8328  0.0  0.3  42484  5860 ?        S    15:44   0:00 nginx: master process /usr/local/src/nginx/sbin/nginx -c /usr/local/src/nginx/conf/nginx.conf</span><br><span class="line">nginx       8329  0.0  0.2  77240  4652 ?        S    15:44   0:00 nginx: worker process</span><br><span class="line">root        8333  0.0  0.0  12136  1120 pts/0    S+   15:45   0:00 grep --color=auto nginx</span><br><span class="line">[root@centos8 nginx-1.20.2]# </span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">先关闭旧nginx的worker进程,而不关闭nginx主进程方便回滚</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">向原Nginx主进程发送WINCH信号，它会逐步关闭旗下的工作进程（主进程不退出），这时所有请求都会由新版Nginx处理</span></span><br><span class="line"></span><br><span class="line">[root@centos8 nginx-1.20.2]# kill -WINCH `cat /usr/local/src/nginx/logs/nginx.pid.oldbin` </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">如果旧版worker进程有用户的请求,会一直等待处理完后才会关闭</span></span><br><span class="line">[root@centos8 nginx-1.20.2]# ps aux | grep nginx</span><br><span class="line">root        1595  0.0  0.1  42452  2724 ?        Ss   Jan05   0:00 nginx: master process /usr/local/src/nginx/sbin/nginx -c /usr/local/src/nginx/conf/nginx.conf</span><br><span class="line">root        8328  0.0  0.3  42484  5860 ?        S    15:44   0:00 nginx: master process /usr/local/src/nginx/sbin/nginx -c /usr/local/src/nginx/conf/nginx.conf</span><br><span class="line">nginx       8329  0.0  0.2  77240  5032 ?        S    15:44   0:00 nginx: worker process</span><br><span class="line">root        8346  0.0  0.0  12136  1144 pts/0    S+   15:48   0:00 grep --color=auto nginx</span><br><span class="line">[root@centos8 nginx-1.20.2]# </span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">经过一段时间测试，新版本服务没问题，最后发送QUIT信号,退出老的master</span></span><br><span class="line">[root@centos8 nginx-1.20.2]# kill -QUIT `cat /usr/local/src/nginx/logs/nginx.pid.oldbin`</span><br><span class="line">[root@centos8 nginx-1.20.2]# </span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看版本是否升级成功</span></span><br><span class="line">[root@centos8 nginx-1.20.2]# nginx -v</span><br><span class="line">nginx version: nginx/1.20.2</span><br><span class="line">[root@centos8 nginx-1.20.2]# </span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">回滚</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">如果升级的版本发现问题需要回滚,可以发送HUP信号,重新拉起旧版本的worker</span></span><br><span class="line">[root@centos8 nginx-1.20.2]# kill -HUB `cat /usr/local/src/nginx/logs/nginx.pid.oldbin`</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">最后关闭新版的master</span></span><br><span class="line">[root@centos8 nginx-1.20.2]# kill -QUIT `cat /usr/local/src/nginx/logs/nginx.pid`</span><br></pre></td></tr></table></figure>
+
+
+
+
+    </div>
+    
+    <div class="post-footer">
+        <div>
+            
+        </div>
+        <div>
+            
+        </div>
+    </div>
+</article>
+<div class="article-nav prev-next-wrap clearfix">
+    
+    <a href="/2023/01/10/Nginx%E6%A0%B8%E5%BF%83%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/" class="pre-post btn btn-default" title='Nginx核心配置文件'>
+        <i class="fa fa-angle-left fa-fw"></i><span class="hidden-lg">上一篇</span>
+        <span class="hidden-xs">
+            Nginx核心配置文件</span>
+    </a>
+    
+    
+    <a href="/2023/01/06/docker-compose%E9%83%A8%E7%BD%B2MySQL/" class="next-post btn btn-default" title='docker-compose部署MySql'>
+        <span class="hidden-lg">下一篇</span>
+        <span class="hidden-xs">
+            docker-compose部署MySql</span><i class="fa fa-angle-right fa-fw"></i>
+    </a>
+    
+</div>
+
+<div id="comments">
+    
+    
+<div id="vcomments" class="valine"></div>
+
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="/assets/valine.min.js"></script>
+
+<script>
+    new Valine({
+        av: AV,
+        el: '#vcomments',
+        appId: 'hQDROocUhxVs3CipuQjO33sY-gzGzoHsz',
+        appKey: 'CHcmi9bz6KRRaChFJVSY14g1',
+        placeholder: '说点什么吧',
+        notify: false,
+        verify: true,
+        avatar: 'mm',
+        meta: 'nick,mail'.split(','),
+        pageSize: '10',
+        path: window.location.pathname,
+        lang: 'zh-CN'.toLowerCase()
+    })
+    </script>
+
+
+</div>
+
+                </main>
+                
+                    <aside id="article-toc" role="navigation" class="col-md-4">
+    <div class="widget">
+        <h3 class="title">
+            文章目录
+        </h3>
+        
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B9%B3%E6%BB%91%E5%8D%87%E7%BA%A7%E6%B5%81%E7%A8%8B"><span class="toc-text">平滑升级流程</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%8C%83%E4%BE%8B%EF%BC%9ANginx1-18-0%E7%89%88%E6%9C%AC%E5%8D%87%E7%BA%A7%E5%88%B01-20-2"><span class="toc-text">范例：Nginx1.18.0版本升级到1.20.2</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Nginx1-18-0%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85"><span class="toc-text">Nginx1.18.0编译安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%96%E8%AF%91Nginx1-20-2"><span class="toc-text">编译Nginx1.20.2</span></a></li></ol></li></ol>
+        
+    </div>
+</aside>
+                
+            </div>
+        </div>
+    </section>
+    <footer class="main-footer">
+    <div class="container">
+        <div class="row">
+        </div>
+    </div>
+</footer>
+<a id="back-to-top" class="icon-btn hide">
+    <i class="fa fa-chevron-up"></i>
+</a>
+    <div class="copyright">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="busuanzi">
+    
+</div>
+            </div>
+            <div class="col-sm-12">
+                <span>Copyright &copy;
+                    2022 - 2023
+                    
+                </span> |
+                <span>
+                    Powered by <a href="//hexo.io" class="copyright-links" target="_blank" rel="nofollow">Hexo</a>
+                </span> |
+                <span>
+                    Theme by <a href="//github.com/shenliyang/hexo-theme-snippet.git" class="copyright-links" target="_blank" rel="nofollow">Snippet</a>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script src="/js/app.js?rev=@@hash.js"></script>
+
+</body>
+</html>
