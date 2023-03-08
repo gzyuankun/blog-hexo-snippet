@@ -1,0 +1,300 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+<head>
+    <!--Setting-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <meta http-equiv="Cache-Control" content="no-siteapp">
+    <meta http-equiv="Cache-Control" content="no-transform">
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta name="apple-mobile-web-app-capable" content="勾三股四">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no,email=no,adress=no">
+    <meta name="browsermode" content="application">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="theme-version" content="1.3.0">
+    <meta name="root" content="/">
+    <link rel="dns-prefetch" href="http://snippet.itshare.work">
+    <!--SEO-->
+
+<meta name="keywords" content="" />
+
+
+<meta name="description" content="安装和删除方法官方文档 : https://docs.docker.com/engine/install/阿里云文档: https://developer.aliyun.com/mirror/d..." />
+
+
+<meta name="robots" content="all" />
+<meta name="google" content="all" />
+<meta name="googlebot" content="all" />
+<meta name="verify" content="all" />
+    <!--Title-->
+
+<title>
+    
+    Docker安装部署 |
+    
+    勾三股四
+</title>
+
+<link rel="alternate" href="/atom.xml" title="勾三股四" type="application/atom+xml">
+
+
+<link rel="icon" href="./img/favicon.ico">
+
+    
+
+
+<link rel="stylesheet" href="/css/bootstrap.min.css?rev=3.3.7.css">
+<link rel="stylesheet" href="/./img/favicon.ico.css">
+<link rel="stylesheet" href="/css/style.css?rev=@@hash.css">
+
+    
+<div class="hide">
+    <script type="text/javascript">
+    var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+    document.write(unescape("%3Cspan class='cnzz_stat_icon_1263868967 hide' %3E%3Cscript%20src%3D%22https%3A%2F%2Fs95.cnzz.com%2Fz_stat.php%3Fweb_id%3D1272564536%22%3E%3C%2Fscript%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s19.cnzz.com/z_stat.php%3Fid%3D1263868967%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+</div>
+
+
+
+
+    
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<!--[if lte IE 8]>
+<style>
+    html{ font-size: 1em }
+</style>
+<![endif]-->
+<!--[if lte IE 9]>
+<div style="ie">你使用的浏览器版本过低，为了你更好的阅读体验，请更新浏览器的版本或者使用其他现代浏览器，比如Chrome、Firefox、Safari等。</div>
+<![endif]-->
+<body>
+    <header class="main-header"  style="background-image:url(
+    /./img/banner.jpg)"
+     >
+    <div class="main-header-box">
+        <a class="header-avatar" href="/" title='yuan kun'>
+            <img src="/img/avatar.jpg" alt="logo头像" class="img-responsive center-block">
+        </a>
+        <div class="branding">
+            <!--<h2 class="text-hide">Snippet主题,从未如此简单有趣</h2>-->
+            
+            <h2>
+                深夜是学习的粥
+            </h2>
+            
+        </div>
+    </div>
+</header>
+    <nav class="main-navigation">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="navbar-header"><span class="nav-toggle-button collapsed pull-right" data-toggle="collapse" data-target="#main-menu" id="mnav">
+                        <span class="sr-only"></span>
+                        <i class="fa fa-bars"></i>
+                    </span>
+                    <a class="navbar-brand" href="http://snippet.itshare.work">
+                        勾三股四</a>
+                </div>
+                <div class="collapse navbar-collapse" id="main-menu">
+                    <ul class="menu">
+                        
+                        <li role="presentation" class="text-center">
+                            <a href="/"><i class="fa "></i>
+                                首页</a>
+                        </li>
+                        
+                        <li role="presentation" class="text-center">
+                            <a href="/categories"><i class="fa "></i>
+                                分类</a>
+                        </li>
+                        
+                        <li role="presentation" class="text-center">
+                            <a href="/tags"><i class="fa "></i>
+                                标签</a>
+                        </li>
+                        
+                        <li role="presentation" class="text-center">
+                            <a href="/about"><i class="fa "></i>
+                                关于</a>
+                        </li>
+                        
+                        <li role="presentation" class="text-center">
+                            <a href="/archives/"><i class="fa "></i>
+                                时间轴</a>
+                        </li>
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+    <section class="content-wrap">
+        <div class="container">
+            <div class="row">
+                <main class="col-md-8 main-content m-post">
+                    <p id="process"></p>
+<article class="post">
+    <div class="post-head">
+        <h1 id="Docker安装部署">
+            
+            Docker安装部署
+            
+        </h1>
+        <div class="post-meta">
+    
+    <span class="categories-meta fa-wrap">
+        <i class="fa fa-folder-open-o"></i>
+        <a class="category-link" href="/categories/Docker/">Docker</a>
+    </span>
+    
+    
+    <span class="fa-wrap">
+        <i class="fa fa-tags"></i>
+        <span class="tags-meta">
+            
+        </span>
+    </span>
+    
+    
+    
+    <span class="fa-wrap">
+        <i class="fa fa-clock-o"></i>
+        <span class="date-meta">
+            2023/03/07</span>
+    </span>
+    
+    
+</div>
+        
+        
+    </div>
+    
+    <div class="post-body post-content">
+        <h1 id="安装和删除方法"><a href="#安装和删除方法" class="headerlink" title="安装和删除方法"></a>安装和删除方法</h1><p>官方文档 : <a target="_blank" rel="noopener" href="https://docs.docker.com/engine/install/">https://docs.docker.com/engine/install/</a><br>阿里云文档: <a target="_blank" rel="noopener" href="https://developer.aliyun.com/mirror/docker-ce?spm=a2c6h.13651102.0.0.3e221b11gu">https://developer.aliyun.com/mirror/docker-ce?spm=a2c6h.13651102.0.0.3e221b11gu</a></p>
+<h2 id="Ubuntu-安装和删除Docker"><a href="#Ubuntu-安装和删除Docker" class="headerlink" title="Ubuntu 安装和删除Docker"></a>Ubuntu 安装和删除Docker</h2><p>官方文档: <a target="_blank" rel="noopener" href="https://docs.docker.com/install/linux/docker-ce/ubuntu/">https://docs.docker.com/install/linux/docker-ce/ubuntu/</a></p>
+<h2 id="CentOS-安装和删除Docker"><a href="#CentOS-安装和删除Docker" class="headerlink" title="CentOS 安装和删除Docker"></a>CentOS 安装和删除Docker</h2><p>官方文档: <a target="_blank" rel="noopener" href="https://docs.docker.com/install/linux/docker-ce/centos/">https://docs.docker.com/install/linux/docker-ce/centos/</a><br>CentOS 6 因内核太旧，即使支持安装docker，但会有各种问题，不建议安装<br>CentOS 7 的 extras 源虽然可以安装docker，但包比较旧，建议从官方源或镜像源站点下载安装docker<br>CentOS 8 有新技术 podman 代替 docker<br>因此建议在CentOS 7 上安装 docker<br>参考阿里云文档: <a target="_blank" rel="noopener" href="https://developer.aliyun.com/mirror/docker-ce?spm=a2c6h.13651102.0.0.3e221b11gu">https://developer.aliyun.com/mirror/docker-ce?spm=a2c6h.13651102.0.0.3e221b11gu</a></p>
+<h2 id="二进制安装"><a href="#二进制安装" class="headerlink" title="二进制安装"></a>二进制安装</h2><p>本方法适用于无法上网或无法通过包安装方式安装的主机上安装docker<br>安装文档: <a target="_blank" rel="noopener" href="https://docs.docker.com/install/linux/docker-ce/binaries/">https://docs.docker.com/install/linux/docker-ce/binaries/</a></p>
+<h3 id="二进制安装下载路径"><a href="#二进制安装下载路径" class="headerlink" title="二进制安装下载路径"></a>二进制安装下载路径</h3><p><a target="_blank" rel="noopener" href="https://download.docker.com/linux/">https://download.docker.com/linux/</a><br><a target="_blank" rel="noopener" href="https://mirrors.aliyun.com/docker-ce/linux/static/stable/x86_64/">https://mirrors.aliyun.com/docker-ce/linux/static/stable/x86_64/</a></p>
+<p>范例：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line">wget https://mirrors.aliyun.com/docker-ce/linux/static/stable/x86_64/docker-20.10.10.tgz?spm=a2c6h.25603864.0.0.1caf15acK1B2NZ</span><br><span class="line"></span><br><span class="line"><span class="comment"># 解压</span></span><br><span class="line">[root@centos7 src]<span class="comment"># tar xf docker-20.10.10.tgz</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># tree</span></span><br><span class="line">[root@centos7 src]<span class="comment"># tree</span></span><br><span class="line">.</span><br><span class="line">├── docker</span><br><span class="line">│   ├── containerd</span><br><span class="line">│   ├── containerd-shim</span><br><span class="line">│   ├── containerd-shim-runc-v2</span><br><span class="line">│   ├── ctr</span><br><span class="line">│   ├── docker</span><br><span class="line">│   ├── dockerd</span><br><span class="line">│   ├── docker-init</span><br><span class="line">│   ├── docker-proxy</span><br><span class="line">│   └── runc</span><br><span class="line">└── docker-20.10.10.tgz</span><br><span class="line"></span><br><span class="line">1 directory, 10 files</span><br><span class="line">[root@centos7 src]<span class="comment"># </span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加环境变量</span></span><br><span class="line">[root@centos7 src]<span class="comment"># ln -s /usr/local/src/docker/* /usr/bin/</span></span><br><span class="line"><span class="comment">#启动dockerd服务</span></span><br><span class="line">[root@centos7 src]<span class="comment">#dockerd &amp;&gt;/dev/null &amp;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 编写service文件</span></span><br><span class="line">[root@centos7 ~]<span class="comment"># cat /lib/systemd/system/docker.service</span></span><br><span class="line"></span><br><span class="line">[Unit]</span><br><span class="line">Description=Docker Application Container Engine</span><br><span class="line">Documentation=https://docs.docker.com</span><br><span class="line">After=network-online.target docker.socket firewalld.service containerd.service time-set.target</span><br><span class="line">Wants=network-online.target containerd.service</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">Type=notify</span><br><span class="line">ExecStart=/usr/bin/dockerd -H unix://var/run/docker.sock</span><br><span class="line">ExecReload=/bin/kill -s HUP <span class="variable">$MAINPID</span></span><br><span class="line">TimeoutStartSec=0</span><br><span class="line">RestartSec=2</span><br><span class="line">Restart=always</span><br><span class="line">StartLimitBurst=3</span><br><span class="line">StartLimitInterval=60s</span><br><span class="line"></span><br><span class="line"><span class="comment"># Having non-zero Limit*s causes performance problems due to accounting overhead</span></span><br><span class="line"><span class="comment"># in the kernel. We recommend using cgroups to do container-local accounting.</span></span><br><span class="line">LimitNOFILE=infinity</span><br><span class="line">LimitNPROC=infinity</span><br><span class="line">LimitCORE=infinity</span><br><span class="line"></span><br><span class="line"><span class="comment"># Comment TasksMax if your systemd version does not support it.</span></span><br><span class="line"><span class="comment"># Only systemd 226 and above support this option.</span></span><br><span class="line">TasksMax=infinity</span><br><span class="line"></span><br><span class="line"><span class="comment"># set delegate yes so that systemd does not reset the cgroups of docker containers</span></span><br><span class="line">Delegate=<span class="built_in">yes</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># kill only the docker process, not all processes in the cgroup</span></span><br><span class="line">KillMode=process</span><br><span class="line">OOMScoreAdjust=-500</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+    
+    <div class="post-footer">
+        <div>
+            
+        </div>
+        <div>
+            
+        </div>
+    </div>
+</article>
+<div class="article-nav prev-next-wrap clearfix">
+    
+    <a href="/2023/03/07/Docker%E9%95%9C%E5%83%8F%E5%8A%A0%E9%80%9F/" class="pre-post btn btn-default" title='Docker镜像加速'>
+        <i class="fa fa-angle-left fa-fw"></i><span class="hidden-lg">上一篇</span>
+        <span class="hidden-xs">
+            Docker镜像加速</span>
+    </a>
+    
+    
+    <a href="/2023/03/02/Zabbix/" class="next-post btn btn-default" title='Zabbix介绍和部署'>
+        <span class="hidden-lg">下一篇</span>
+        <span class="hidden-xs">
+            Zabbix介绍和部署</span><i class="fa fa-angle-right fa-fw"></i>
+    </a>
+    
+</div>
+
+<div id="comments">
+    
+    
+<div id="vcomments" class="valine"></div>
+
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="/assets/valine.min.js"></script>
+
+<script>
+    new Valine({
+        av: AV,
+        el: '#vcomments',
+        appId: 'hQDROocUhxVs3CipuQjO33sY-gzGzoHsz',
+        appKey: 'CHcmi9bz6KRRaChFJVSY14g1',
+        placeholder: '说点什么吧',
+        notify: false,
+        verify: true,
+        avatar: 'mm',
+        meta: 'nick,mail'.split(','),
+        pageSize: '10',
+        path: window.location.pathname,
+        lang: 'zh-CN'.toLowerCase()
+    })
+    </script>
+
+
+</div>
+
+                </main>
+                
+                    <aside id="article-toc" role="navigation" class="col-md-4">
+    <div class="widget">
+        <h3 class="title">
+            文章目录
+        </h3>
+        
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E5%92%8C%E5%88%A0%E9%99%A4%E6%96%B9%E6%B3%95"><span class="toc-text">安装和删除方法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Ubuntu-%E5%AE%89%E8%A3%85%E5%92%8C%E5%88%A0%E9%99%A4Docker"><span class="toc-text">Ubuntu 安装和删除Docker</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CentOS-%E5%AE%89%E8%A3%85%E5%92%8C%E5%88%A0%E9%99%A4Docker"><span class="toc-text">CentOS 安装和删除Docker</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E8%A3%85"><span class="toc-text">二进制安装</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E8%A3%85%E4%B8%8B%E8%BD%BD%E8%B7%AF%E5%BE%84"><span class="toc-text">二进制安装下载路径</span></a></li></ol></li></ol></li></ol>
+        
+    </div>
+</aside>
+                
+            </div>
+        </div>
+    </section>
+    <footer class="main-footer">
+    <div class="container">
+        <div class="row">
+        </div>
+    </div>
+</footer>
+<a id="back-to-top" class="icon-btn hide">
+    <i class="fa fa-chevron-up"></i>
+</a>
+    <div class="copyright">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="busuanzi">
+    
+</div>
+            </div>
+            <div class="col-sm-12">
+                <span>Copyright &copy;
+                    2022 - 2023
+                    
+                </span> |
+                <span>
+                    Powered by <a href="//hexo.io" class="copyright-links" target="_blank" rel="nofollow">Hexo</a>
+                </span> |
+                <span>
+                    Theme by <a href="//github.com/shenliyang/hexo-theme-snippet.git" class="copyright-links" target="_blank" rel="nofollow">Snippet</a>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script src="/js/app.js?rev=@@hash.js"></script>
+
+</body>
+</html>

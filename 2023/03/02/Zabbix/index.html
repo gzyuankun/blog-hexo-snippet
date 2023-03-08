@@ -1,0 +1,345 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+<head>
+    <!--Setting-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <meta http-equiv="Cache-Control" content="no-siteapp">
+    <meta http-equiv="Cache-Control" content="no-transform">
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta name="apple-mobile-web-app-capable" content="勾三股四">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no,email=no,adress=no">
+    <meta name="browsermode" content="application">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="theme-version" content="1.3.0">
+    <meta name="root" content="/">
+    <link rel="dns-prefetch" href="http://snippet.itshare.work">
+    <!--SEO-->
+
+<meta name="keywords" content="" />
+
+
+<meta name="description" content="常见监控方案开源监控软件：cacti、nagios、zabbix、smokeping、open-falcon等
+Zabbix使用场景及系统概述Zabbix是一个企业级解决方案，支持实时监控数千台..." />
+
+
+<meta name="robots" content="all" />
+<meta name="google" content="all" />
+<meta name="googlebot" content="all" />
+<meta name="verify" content="all" />
+    <!--Title-->
+
+<title>
+    
+    Zabbix介绍和部署 |
+    
+    勾三股四
+</title>
+
+<link rel="alternate" href="/atom.xml" title="勾三股四" type="application/atom+xml">
+
+
+<link rel="icon" href="./img/favicon.ico">
+
+    
+
+
+<link rel="stylesheet" href="/css/bootstrap.min.css?rev=3.3.7.css">
+<link rel="stylesheet" href="/./img/favicon.ico.css">
+<link rel="stylesheet" href="/css/style.css?rev=@@hash.css">
+
+    
+<div class="hide">
+    <script type="text/javascript">
+    var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+    document.write(unescape("%3Cspan class='cnzz_stat_icon_1263868967 hide' %3E%3Cscript%20src%3D%22https%3A%2F%2Fs95.cnzz.com%2Fz_stat.php%3Fweb_id%3D1272564536%22%3E%3C%2Fscript%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s19.cnzz.com/z_stat.php%3Fid%3D1263868967%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+</div>
+
+
+
+
+    
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<!--[if lte IE 8]>
+<style>
+    html{ font-size: 1em }
+</style>
+<![endif]-->
+<!--[if lte IE 9]>
+<div style="ie">你使用的浏览器版本过低，为了你更好的阅读体验，请更新浏览器的版本或者使用其他现代浏览器，比如Chrome、Firefox、Safari等。</div>
+<![endif]-->
+<body>
+    <header class="main-header"  style="background-image:url(
+    /./img/banner.jpg)"
+     >
+    <div class="main-header-box">
+        <a class="header-avatar" href="/" title='yuan kun'>
+            <img src="/img/avatar.jpg" alt="logo头像" class="img-responsive center-block">
+        </a>
+        <div class="branding">
+            <!--<h2 class="text-hide">Snippet主题,从未如此简单有趣</h2>-->
+            
+            <h2>
+                深夜是学习的粥
+            </h2>
+            
+        </div>
+    </div>
+</header>
+    <nav class="main-navigation">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="navbar-header"><span class="nav-toggle-button collapsed pull-right" data-toggle="collapse" data-target="#main-menu" id="mnav">
+                        <span class="sr-only"></span>
+                        <i class="fa fa-bars"></i>
+                    </span>
+                    <a class="navbar-brand" href="http://snippet.itshare.work">
+                        勾三股四</a>
+                </div>
+                <div class="collapse navbar-collapse" id="main-menu">
+                    <ul class="menu">
+                        
+                        <li role="presentation" class="text-center">
+                            <a href="/"><i class="fa "></i>
+                                首页</a>
+                        </li>
+                        
+                        <li role="presentation" class="text-center">
+                            <a href="/categories"><i class="fa "></i>
+                                分类</a>
+                        </li>
+                        
+                        <li role="presentation" class="text-center">
+                            <a href="/tags"><i class="fa "></i>
+                                标签</a>
+                        </li>
+                        
+                        <li role="presentation" class="text-center">
+                            <a href="/about"><i class="fa "></i>
+                                关于</a>
+                        </li>
+                        
+                        <li role="presentation" class="text-center">
+                            <a href="/archives/"><i class="fa "></i>
+                                时间轴</a>
+                        </li>
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+    <section class="content-wrap">
+        <div class="container">
+            <div class="row">
+                <main class="col-md-8 main-content m-post">
+                    <p id="process"></p>
+<article class="post">
+    <div class="post-head">
+        <h1 id="Zabbix介绍和部署">
+            
+            Zabbix介绍和部署
+            
+        </h1>
+        <div class="post-meta">
+    
+    <span class="categories-meta fa-wrap">
+        <i class="fa fa-folder-open-o"></i>
+        <a class="category-link" href="/categories/Zabbix/">Zabbix</a>
+    </span>
+    
+    
+    <span class="fa-wrap">
+        <i class="fa fa-tags"></i>
+        <span class="tags-meta">
+            
+        </span>
+    </span>
+    
+    
+    
+    <span class="fa-wrap">
+        <i class="fa fa-clock-o"></i>
+        <span class="date-meta">
+            2023/03/02</span>
+    </span>
+    
+    
+</div>
+        
+        
+    </div>
+    
+    <div class="post-body post-content">
+        <h1 id="常见监控方案"><a href="#常见监控方案" class="headerlink" title="常见监控方案"></a>常见监控方案</h1><p>开源监控软件：cacti、nagios、zabbix、smokeping、open-falcon等</p>
+<h1 id="Zabbix使用场景及系统概述"><a href="#Zabbix使用场景及系统概述" class="headerlink" title="Zabbix使用场景及系统概述"></a>Zabbix使用场景及系统概述</h1><p>Zabbix是一个企业级解决方案，支持实时监控数千台服务器，虚拟机和网络设备，采集百万级监控指标，适用于任何IT基础架构、服务、应用程序和资源的解决方案。</p>
+<h2 id="zabbix使用场景"><a href="#zabbix使用场景" class="headerlink" title="zabbix使用场景"></a>zabbix使用场景</h2><p><img src="/../image.assets/1677742555473.png" alt="1677742555473"></p>
+<h2 id="zabbix系统概述"><a href="#zabbix系统概述" class="headerlink" title="zabbix系统概述"></a>zabbix系统概述</h2><p><img src="/../image.assets/1677742581882.png" alt="1677742581882"></p>
+<p><strong>数据采集：</strong></p>
+<p>周期性时序数据</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">主机/对象：服务器、路由器、交换机、存储、防火墙、IP、PORT、URL、自定义监控对象...</span><br><span class="line">采集目标：监控项，指标数据（metrics data）</span><br></pre></td></tr></table></figure>
+
+<p><strong>数据存储：</strong></p>
+<p>监控数据存储系统</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">SQL: MySQL/MariaDB(Zabbix)</span><br><span class="line">NoSQL：Redis(Open-falcon)</span><br><span class="line">rrd: Round Robin Database(Cacti)</span><br></pre></td></tr></table></figure>
+
+<p><strong>数据类型：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">历史数据: 每个监控项采集到的每个监控值</span><br><span class="line">趋势数据: 趋势表里主要保留某个监控项一个小时内历史数据的最大值、最小值和平均值以及该监控项一个小时内所采</span><br><span class="line">集到的数据个数。</span><br></pre></td></tr></table></figure>
+
+<p><strong>阈值：</strong><br>可按照预定义的阈值等级实现分层报警<br><strong>告警机制：</strong><br>email,短信,微信,语音,故障自治愈</p>
+<h2 id="zabbix-核心任务："><a href="#zabbix-核心任务：" class="headerlink" title="zabbix 核心任务："></a>zabbix 核心任务：</h2><p><strong>数据采集：</strong></p>
+<p>数据采集方式：zabbix-server，zabbix-proxy，zabbix-agent</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Agentless：SNMP,Telnet,ssh, IPMI, JMX,</span><br><span class="line">Agent：zabbix agent</span><br></pre></td></tr></table></figure>
+
+<p><strong>数据存储：</strong><br>zabbix database<br><strong>数据展示：</strong><br>zabbix web</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">graph -&gt; screen -&gt; slideshow(将多个screen以幻灯片的方式进行轮流展示)</span><br></pre></td></tr></table></figure>
+
+<p>grafana:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">以zabbix为数据源展示更绚丽的界面</span><br></pre></td></tr></table></figure>
+
+<p><strong>告警通知：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">host (host groups) &lt;- templates #从模板继承告警配置</span><br><span class="line">host -&gt; items -&gt; triggers -&gt; action (条件-conditions, 操作-operations) #自定义告警配置</span><br></pre></td></tr></table></figure>
+
+<h1 id="规划部署"><a href="#规划部署" class="headerlink" title="规划部署"></a>规划部署</h1><h2 id="部署环境："><a href="#部署环境：" class="headerlink" title="部署环境："></a>部署环境：</h2><ul>
+<li>服务器系统：centos7.9，ubuntu20.04</li>
+</ul>
+<h2 id="yum安装zabbix"><a href="#yum安装zabbix" class="headerlink" title="yum安装zabbix"></a>yum安装zabbix</h2><p> <a target="_blank" rel="noopener" href="https://www.zabbix.com/cn/download?zabbix=5.0&os_distribution=centos&os_version=7&components=server_frontend_agent&db=mysql&ws=nginx">安装说明</a> </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"># Install Zabbix repository</span><br><span class="line">wget https://repo.zabbix.com/zabbix/5.0/rhel/7/x86_64/zabbix-release-5.0-1.el7.noarch.rpm</span><br><span class="line"></span><br><span class="line">yum install zabbix-release-5.0-1.el7.noarch.rpm</span><br><span class="line"></span><br><span class="line">yum clean all</span><br><span class="line"></span><br><span class="line"># 安装Zabbix server，Web前端，agent</span><br><span class="line"></span><br><span class="line">yum install zabbix-server-mysql zabbix-agent</span><br><span class="line"></span><br><span class="line"># Install Zabbix frontend</span><br><span class="line"># Enable Red Hat Software Collections</span><br><span class="line">yum install centos-release-scl</span><br><span class="line"></span><br><span class="line"># 编辑配置文件 /etc/yum.repos.d/zabbix.repo and enable zabbix-frontend repository.</span><br><span class="line">[zabbix-frontend]</span><br><span class="line">...</span><br><span class="line">enabled=1</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"># Install Zabbix frontend packages.</span><br><span class="line">yum install zabbix-web-mysql-scl zabbix-nginx-conf-scl</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 安装数据库</span><br><span class="line"># 在线一键安装脚本地址</span><br><span class="line">https://itshare.work/2022/09/30/MySQLinstallScript/</span><br><span class="line"></span><br><span class="line"># 创建初始数据库</span><br><span class="line"># Make sure you have database server up and running.</span><br><span class="line"># 在数据库主机上运行以下代码</span><br><span class="line">mysql -uroot -p</span><br><span class="line"></span><br><span class="line">mysql&gt; create database zabbix character set utf8 collate utf8_bin;</span><br><span class="line">Query OK, 1 row affected (0.01 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; create user zabbix@localhost identified by &#x27;123456&#x27;;</span><br><span class="line">Query OK, 0 rows affected (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; grant all privileges on zabbix.* to zabbix@localhost;</span><br><span class="line">Query OK, 0 rows affected (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; set global log_bin_trust_function_creators = 1;</span><br><span class="line">Query OK, 0 rows affected (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; quit;</span><br><span class="line"></span><br><span class="line"># 导入初始架构和数据，系统将提示您输入新创建的密码。</span><br><span class="line">[root@centos7 ~]# zcat /usr/share/doc/zabbix-server-mysql-5.0.31/create.sql.gz | mysql -uzabbix -p123456 zabbix</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#Disable log_bin_trust_function_creators option after importing database schema.</span><br><span class="line"># mysql -uroot -p</span><br><span class="line">password</span><br><span class="line">mysql&gt; set global log_bin_trust_function_creators = 0;</span><br><span class="line">mysql&gt; quit;</span><br><span class="line"></span><br><span class="line">#为Zabbix server配置数据库</span><br><span class="line">#编辑配置文件 /etc/zabbix/zabbix_server.conf</span><br><span class="line">DBPassword=12456</span><br><span class="line"></span><br><span class="line"># 为 Zabbix前端配置PHP</span><br><span class="line"># 编辑配置文件 /etc/opt/rh/rh-nginx116/nginx/conf.d/zabbix.conf uncomment and set &#x27;listen&#x27; and &#x27;server_name&#x27; directives.</span><br><span class="line"># listen 80;</span><br><span class="line"># server_name example.com;</span><br><span class="line"></span><br><span class="line"># 编辑配置文件 /etc/opt/rh/rh-php72/php-fpm.d/zabbix.conf add nginx to listen.acl_users directive.</span><br><span class="line">listen.acl_users = apache,nginx</span><br><span class="line"></span><br><span class="line"># Then uncomment and set the right timezone for you.(取消注释，设置时区)</span><br><span class="line">php_value[date.timezone] = Asia/Shanghai</span><br><span class="line"></span><br><span class="line"># 启动Zabbix server和agent进程</span><br><span class="line"># 启动Zabbix server和agent进程，并为它们设置开机自启：</span><br><span class="line"># systemctl restart zabbix-server zabbix-agent rh-nginx116-nginx rh-php72-php-fpm</span><br><span class="line"># systemctl enable zabbix-server zabbix-agent rh-nginx116-nginx rh-php72-php-fpm</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>开始使用</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://ip:port</span><br></pre></td></tr></table></figure>
+
+<p><img src="/../image.assets/1677747113512.png" alt="1677747113512"></p>
+<p><img src="/../image.assets/1677747122483.png" alt="1677747122483"></p>
+<p><img src="/../image.assets/1677747141707.png" alt="1677747141707"></p>
+<p><img src="/../image.assets/1677747204306.png" alt="1677747204306"></p>
+<p><img src="/../image.assets/1677747218962.png" alt="1677747218962"></p>
+<p><img src="/../image.assets/1677747236290.png" alt="1677747236290"></p>
+<p><img src="/../image.assets/1677747305904.png" alt="1677747305904"></p>
+<p><img src="/../image.assets/1677747322004.png" alt="1677747322004"></p>
+<h2 id="apt安装"><a href="#apt安装" class="headerlink" title="apt安装"></a>apt安装</h2><p> <a target="_blank" rel="noopener" href="https://www.zabbix.com/cn/download?zabbix=5.0&os_distribution=ubuntu&os_version=20.04&components=server_frontend_agent&db=mysql&ws=apache">Zabbix 5.0 LTS for Ubuntu 20.04 (Focal), MySQL, Apache</a> </p>
+<p><img src="/../image.assets/1677748010282.png" alt="1677748010282"></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Install and configure Zabbix for your platform</span></span><br><span class="line"><span class="comment"># a. Install Zabbix repository</span></span><br><span class="line">wget https://repo.zabbix.com/zabbix/5.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_5.0-1%2Bfocal_all.deb</span><br><span class="line">dpkg -i zabbix-release_5.0-1+focal_all.deb</span><br><span class="line">apt update</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装Zabbix server，Web前端，agent</span></span><br><span class="line">apt install zabbix-server-mysql zabbix-frontend-php zabbix-apache-conf zabbix-agent</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装数据库</span></span><br><span class="line">apt install mysql-server -y</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建初始数据库</span></span><br><span class="line"><span class="comment"># Make sure you have database server up and running.</span></span><br><span class="line"><span class="comment"># 在数据库主机上运行以下代码。</span></span><br><span class="line"><span class="comment"># mysql -uroot -p</span></span><br><span class="line">password</span><br><span class="line">mysql&gt; create database zabbix character <span class="built_in">set</span> utf8 collate utf8_bin;</span><br><span class="line">mysql&gt; create user zabbix@localhost identified by <span class="string">&#x27;123456&#x27;</span>;</span><br><span class="line">mysql&gt; grant all privileges on zabbix.* to zabbix@localhost;</span><br><span class="line">mysql&gt; <span class="built_in">set</span> global log_bin_trust_function_creators = 1;</span><br><span class="line">mysql&gt; quit;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 导入初始架构和数据，系统将提示您输入新创建的密码。</span></span><br><span class="line">zcat /usr/share/doc/zabbix-server-mysql*/create.sql.gz | mysql -uzabbix -p123456 zabbix</span><br><span class="line"></span><br><span class="line"><span class="comment"># Disable log_bin_trust_function_creators option after importing database schema.</span></span><br><span class="line"><span class="comment"># mysql -uroot -p</span></span><br><span class="line">password</span><br><span class="line">mysql&gt; <span class="built_in">set</span> global log_bin_trust_function_creators = 0;</span><br><span class="line">mysql&gt; quit;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 为Zabbix server配置数据库</span></span><br><span class="line"><span class="comment"># 编辑配置文件 /etc/zabbix/zabbix_server.conf</span></span><br><span class="line">DBPassword=123456</span><br><span class="line"></span><br><span class="line"><span class="comment"># 为Zabbix前端配置PHP</span></span><br><span class="line"><span class="comment"># 编辑配置文件 /etc/zabbix/apache.conf uncomment and set the right timezone for you.</span></span><br><span class="line">php_value date.timezone Asia/Shanghai</span><br><span class="line"></span><br><span class="line"><span class="comment"># 动Zabbix server和agent进程</span></span><br><span class="line"><span class="comment"># 启动Zabbix server和agent进程，并为它们设置开机自启：</span></span><br><span class="line">systemctl restart zabbix-server zabbix-agent apache2</span><br><span class="line">systemctl <span class="built_in">enable</span> zabbix-server zabbix-agent apache2</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+    
+    <div class="post-footer">
+        <div>
+            
+        </div>
+        <div>
+            
+        </div>
+    </div>
+</article>
+<div class="article-nav prev-next-wrap clearfix">
+    
+    <a href="/2023/03/07/docker-install/" class="pre-post btn btn-default" title='Docker安装部署'>
+        <i class="fa fa-angle-left fa-fw"></i><span class="hidden-lg">上一篇</span>
+        <span class="hidden-xs">
+            Docker安装部署</span>
+    </a>
+    
+    
+    <a href="/2023/02/25/Ansible2/" class="next-post btn btn-default" title='运维自动化工具Ansible(二)'>
+        <span class="hidden-lg">下一篇</span>
+        <span class="hidden-xs">
+            运维自动化工具Ansible(二)</span><i class="fa fa-angle-right fa-fw"></i>
+    </a>
+    
+</div>
+
+<div id="comments">
+    
+    
+<div id="vcomments" class="valine"></div>
+
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="/assets/valine.min.js"></script>
+
+<script>
+    new Valine({
+        av: AV,
+        el: '#vcomments',
+        appId: 'hQDROocUhxVs3CipuQjO33sY-gzGzoHsz',
+        appKey: 'CHcmi9bz6KRRaChFJVSY14g1',
+        placeholder: '说点什么吧',
+        notify: false,
+        verify: true,
+        avatar: 'mm',
+        meta: 'nick,mail'.split(','),
+        pageSize: '10',
+        path: window.location.pathname,
+        lang: 'zh-CN'.toLowerCase()
+    })
+    </script>
+
+
+</div>
+
+                </main>
+                
+                    <aside id="article-toc" role="navigation" class="col-md-4">
+    <div class="widget">
+        <h3 class="title">
+            文章目录
+        </h3>
+        
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E7%9B%91%E6%8E%A7%E6%96%B9%E6%A1%88"><span class="toc-text">常见监控方案</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Zabbix%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF%E5%8F%8A%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%BF%B0"><span class="toc-text">Zabbix使用场景及系统概述</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#zabbix%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-text">zabbix使用场景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#zabbix%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%BF%B0"><span class="toc-text">zabbix系统概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#zabbix-%E6%A0%B8%E5%BF%83%E4%BB%BB%E5%8A%A1%EF%BC%9A"><span class="toc-text">zabbix 核心任务：</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%A7%84%E5%88%92%E9%83%A8%E7%BD%B2"><span class="toc-text">规划部署</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%83%A8%E7%BD%B2%E7%8E%AF%E5%A2%83%EF%BC%9A"><span class="toc-text">部署环境：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#yum%E5%AE%89%E8%A3%85zabbix"><span class="toc-text">yum安装zabbix</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#apt%E5%AE%89%E8%A3%85"><span class="toc-text">apt安装</span></a></li></ol></li></ol>
+        
+    </div>
+</aside>
+                
+            </div>
+        </div>
+    </section>
+    <footer class="main-footer">
+    <div class="container">
+        <div class="row">
+        </div>
+    </div>
+</footer>
+<a id="back-to-top" class="icon-btn hide">
+    <i class="fa fa-chevron-up"></i>
+</a>
+    <div class="copyright">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="busuanzi">
+    
+</div>
+            </div>
+            <div class="col-sm-12">
+                <span>Copyright &copy;
+                    2022 - 2023
+                    
+                </span> |
+                <span>
+                    Powered by <a href="//hexo.io" class="copyright-links" target="_blank" rel="nofollow">Hexo</a>
+                </span> |
+                <span>
+                    Theme by <a href="//github.com/shenliyang/hexo-theme-snippet.git" class="copyright-links" target="_blank" rel="nofollow">Snippet</a>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script src="/js/app.js?rev=@@hash.js"></script>
+
+</body>
+</html>

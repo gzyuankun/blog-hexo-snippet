@@ -739,6 +739,92 @@
       </categories>
   </entry>
   <entry>
+    <title>DNS服务</title>
+    <url>/2022/09/22/DNS/</url>
+    <content><![CDATA[<p class="note note-success"> DNS一般指域名系统。 域名系统（英文：Domain Name System，缩写：DNS）是互联网的一项服务。它作为将域名和IP地址相互映射的一个分布式数据库，能够使人更方便地访问互联网。DNS使用UDP端口53 </p>
+<span id="more"></span>  
+
+<h1 id="名字解析介绍和DNS"><a href="#名字解析介绍和DNS" class="headerlink" title="名字解析介绍和DNS"></a>名字解析介绍和DNS</h1><h2 id="DNS服务工作原理"><a href="#DNS服务工作原理" class="headerlink" title="DNS服务工作原理"></a>DNS服务工作原理</h2><p> <img src="/../image.assets/1664088991760.png" alt="1664088991760"> </p>
+<h2 id="DNS查询类型"><a href="#DNS查询类型" class="headerlink" title="DNS查询类型"></a>DNS查询类型</h2><p> <img src="/../image.assets/1664089216470.png" alt="1664089216470"> </p>
+<ul>
+<li>递归查询：<br>是指DNS服务器在收到用户发起的请求时，必须向用户返回一个准确的查询结果。如果DNS服务器<br>本地没有存储与之对应的信息，则该服务器需要询问其他服务器，并将返回的查询结构提交给用<br>户。<br>一般客户机和本地DNS服务器之间属于递归查询，即当客户机向DNS服务器发出请求后,若DNS服<br>务器本身不能解析，则会向另外的DNS服务器发出查询请求，得到最终的肯定或否定的结果后转交<br>给客户机。此查询的源和目标保持不变,为了查询结果只需要发起一次查询<br>递归算法:客户端向LocalDNS发起域名查询–&gt;localDNS不知道域名对应的IP–&gt;但它知道谁知道-&gt;他<br>代为帮客户端去查找–&gt;最后再返回最终结果</li>
+<li>迭代查询：<br>是指DNS服务器在收到用户发起的请求时，并不直接回复查询结果，而是告诉另一台DNS服务器的<br>地址，用户再向这台DNS服务器提交请求，这样依次反复，直到返回查询结果。<br>一般情况下(有例外)本地的DNS服务器向其它DNS服务器的查询属于迭代查询,如：若对方不能返回<br>权威的结果，则它会向下一个DNS服务器(参考前一个DNS服务器返回的结果)再次发起进行查询，<br>直到返回查询的结果为止。此查询的源不变,但查询的目标不断变化,为查询结果一般需要发起多次<br>查询</li>
+<li>迭代算法︰<br>客户端向LocalDNS发起域名查询–&gt;localDNS不知道域名对应的IP–&gt;但它知道谁知道并<br>推荐客户端应该找谁–&gt;客户端自己去找它</li>
+<li>DNS缓存:<br>DNS缓存是将解析数据存储在靠近发起请求的客户端的位置，也可以说DNS数据是可以缓存在任意<br>位置，最终目的是以此减少递归查询过程，可以更快的让用户获得请求结果。</li>
+</ul>
+<h2 id="解析类型"><a href="#解析类型" class="headerlink" title="解析类型"></a>解析类型</h2><ul>
+<li>FQDN –&gt; IP 正向解析  </li>
+<li>IP –&gt; FQDN 反向解析<br><strong>注意：正反向解析是两个不同的名称空间，是两棵不同的解析树</strong></li>
+</ul>
+<h2 id="完整查询流程"><a href="#完整查询流程" class="headerlink" title="完整查询流程"></a>完整查询流程</h2><figure class="highlight text"><table><tr><td class="code"><pre><span class="line">Client --&gt;hosts文件 --&gt; Client DNS Service Local Cache --&gt; DNS Server (recursion递</span><br><span class="line">归) --&gt; DNS Server Cache --&gt;DNS iteration(迭代) --&gt; 根--&gt; 顶级域名DNS--&gt;二级域名DNS…</span><br></pre></td></tr></table></figure>
+
+<h1 id="DNS服务相关概念和技术"><a href="#DNS服务相关概念和技术" class="headerlink" title="DNS服务相关概念和技术"></a>DNS服务相关概念和技术</h1><h2 id="各种资源记录"><a href="#各种资源记录" class="headerlink" title="各种资源记录"></a>各种资源记录</h2><p>区域解析库：由众多资源记录RR(Resource Record)组成<br>记录类型：A, AAAA, PTR, SOA, NS, CNAME, MX</p>
+<ul>
+<li>SOA：Start Of Authority，起始授权记录；一个区域解析库有且仅能有一个SOA记录，必须位于解析库的第一条记录  </li>
+<li>A：internet Address，作用，FQDN –&gt; IP  </li>
+<li>AAAA：FQDN –&gt; IPv6  </li>
+<li>PTR：PoinTeR，IP –&gt; FQDN  </li>
+<li>NS：Name Server，专用于标明当前区域的DNS服务器  </li>
+<li>CNAME ： Canonical Name，别名记录  </li>
+<li>MX：Mail eXchanger，邮件交换器  </li>
+<li>TXT：对域名进行标识和说明的一种方式，一般做验证记录时会使用此项，如：SPF（反垃圾邮<br>件）记录，https验证等，如下示例：  <figure class="highlight text"><table><tr><td class="code"><pre><span class="line">_dnsauth TXT 2012011200000051qgs69bwoh4h6nht4n1h0lr038x</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="SOA记录"><a href="#SOA记录" class="headerlink" title="SOA记录"></a>SOA记录</h3><p>name: 当前区域的名字，例如”magedu.org.”<br>value: 有多部分组成<br>注意：</p>
+<ol>
+<li>当前区域的主DNS服务器的FQDN，也可以使用当前区域的名字，只是注释功能，可以不需要配置<br>对应的NS记录和A记录</li>
+<li>当前区域管理员的邮箱地址；但地址中不能使用@符号，一般用.替换，例如：admin.magedu.org</li>
+<li>主从服务区域传输相关定义以及否定的答案的统一的TTL</li>
+</ol>
+<p><strong>范例</strong>  </p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">magedu.org. 86400 IN SOA ns.magedu.org. nsadmin.magedu.org. (</span><br><span class="line">2015042201 ;序列号</span><br><span class="line">2H ;刷新时间</span><br><span class="line">10M ;重试时间</span><br><span class="line">1W ;过期时间</span><br><span class="line">1D ;否定答案的TTL值</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<h3 id="NS记录"><a href="#NS记录" class="headerlink" title="NS记录"></a>NS记录</h3><p>name: 当前区域的名字<br>value: 当前区域的某DNS服务器的名字，例如: ns.magedu.org.<br>注意：</p>
+<ol>
+<li>相邻的两个资源记录的name相同时，后续的可省略</li>
+<li>对NS记录而言，任何一个ns记录后面的服务器名字，都应该在后续有一个A记录</li>
+<li>一个区域可以有多个NS记录<br>范例：  <figure class="highlight text"><table><tr><td class="code"><pre><span class="line">magedu.org. IN NS ns1.magedu.org.</span><br><span class="line">magedu.org. IN NS ns2.magedu.org.</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="MX记录"><a href="#MX记录" class="headerlink" title="MX记录"></a>MX记录</h3><p>name: 当前区域的名字<br>value: 当前区域的某邮件服务器(smtp服务器)的主机名<br><strong>注意：</strong>  </p>
+<ol>
+<li>一个区域内，MX记录可有多个；但每个记录的value之前应该有一个数字(0-99)，表示此服务器的优先级；数字越小优先级越高  </li>
+<li>对MX记录而言，任何一个MX记录后面的服务器名字，都应该在后续有一个A记录<br>范例：<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">magedu.org. IN MX 10 mx1.magedu.org.</span><br><span class="line">IN MX 20 mx2.magedu.org.</span><br><span class="line">mx1 A 10.0.0.100</span><br><span class="line">mx2 A 10.0.0.200  </span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="A记录"><a href="#A记录" class="headerlink" title="A记录"></a>A记录</h3><p>name: 某主机的FQDN，例如：<a href="http://www.magedu.org/">www.magedu.org</a>.<br>value: 主机名对应主机的IP地址<br>避免用户写错名称时给错误答案，可通过泛域名解析进行解析至某特定地址<br>范例：  </p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">www.magedu.org. IN A 1.1.1.1</span><br><span class="line">www.magedu.org. IN A 2.2.2.2</span><br><span class="line">mx1.magedu.org. IN A 3.3.3.3</span><br><span class="line">mx2.magedu.org. IN A 4.4.4.4</span><br><span class="line">$GENERATE 1-254 HOST$ IN A 1.2.3.$</span><br><span class="line">*.magedu.org. IN A 5.5.5.5</span><br><span class="line">magedu.org. IN A 6.6.6.6</span><br><span class="line">#注意：如果有和DNS的IP相同的多个同名的A记录，优先返回DNS的本机IP  </span><br></pre></td></tr></table></figure>
+<h3 id="AAAA记录"><a href="#AAAA记录" class="headerlink" title="AAAA记录"></a>AAAA记录</h3><figure class="highlight text"><table><tr><td class="code"><pre><span class="line">name: FQDN  </span><br><span class="line">value: IPv6  </span><br></pre></td></tr></table></figure>
+<h3 id="PTR记录"><a href="#PTR记录" class="headerlink" title="PTR记录"></a>PTR记录</h3><figure class="highlight text"><table><tr><td class="code"><pre><span class="line">name: IP，有特定格式，把IP地址反过来写，1.2.3.4，要写作4.3.2.1；而有特定后缀：in-</span><br><span class="line">addr.arpa.，所以完整写法为：4.3.2.1.in-addr.arpa.</span><br><span class="line">value: FQDN</span><br></pre></td></tr></table></figure>
+<p>注意：网络地址及后缀可省略；主机地址依然需要反着写<br>例如：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">4.3.2.1.in-addr.arpa. IN PTR www.magedu.org.</span><br><span class="line">#如1.2.3为网络地址，可简写成：</span><br><span class="line">4 IN PTR www.magedu.org.</span><br></pre></td></tr></table></figure>
+<h3 id="CNAME别名记录"><a href="#CNAME别名记录" class="headerlink" title="CNAME别名记录"></a>CNAME别名记录</h3><figure class="highlight text"><table><tr><td class="code"><pre><span class="line">name: 别名的FQDN</span><br><span class="line">value: 真正名字的FQDN  </span><br></pre></td></tr></table></figure>
+<p><strong>例如</strong> </p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">www.magedu.org. IN CNAME websrv.magedu.org.</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="DNS软件bind"><a href="#DNS软件bind" class="headerlink" title="DNS软件bind"></a>DNS软件bind</h2><p>DNS服务器软件：bind，powerdns，dnsmasq，unbound，coredns  </p>
+<h3 id="bind相关程序包"><a href="#bind相关程序包" class="headerlink" title="bind相关程序包"></a>bind相关程序包</h3><p>yum list all bind* </p>
+<p>bind：服务器<br>bind-utils: 客户端<br>bind-libs：相关库,依赖关系自动安装<br>bind-chroot: 安全包，将dns相关文件放至 &#x2F;var&#x2F;named&#x2F;chroot&#x2F;</p>
+<p><strong>范例：安装bind软件</strong>  </p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">[root@centos8 ~]#dnf -y install bind bind-utils</span><br><span class="line">[root@ubuntu2004 ~]#apt -y install bind9 bind9-utils</span><br></pre></td></tr></table></figure>
+
+<h3 id="bind包相关文件"><a href="#bind包相关文件" class="headerlink" title="bind包相关文件"></a>bind包相关文件</h3><p>BIND主程序：&#x2F;usr&#x2F;sbin&#x2F;named<br>服务脚本和Unit名称：&#x2F;etc&#x2F;rc.d&#x2F;init.d&#x2F;named，&#x2F;usr&#x2F;lib&#x2F;systemd&#x2F;system&#x2F;named.service<br>主配置文件：&#x2F;etc&#x2F;named.conf, &#x2F;etc&#x2F;named.rfc1912.zones, &#x2F;etc&#x2F;rndc.key<br>管理工具：&#x2F;usr&#x2F;sbin&#x2F;rndc：remote name domain controller，默认与bind安装在同一主机，且<br>只能通过127.0.0.1连接named进程，提供辅助性的管理功能；953&#x2F;tcp<br>解析库文件：&#x2F;var&#x2F;named&#x2F;ZONE_NAME.ZONE<br>注意：<br>(1) 一台物理服务器可同时为多个区域提供解析<br>(2) 必须要有根区域文件；named.ca<br>(3) 应该有两个（如果包括ipv6的，应该更多）实现localhost和本地回环地址的解析库</p>
+<h3 id="主配置文件"><a href="#主配置文件" class="headerlink" title="主配置文件"></a>主配置文件</h3><ul>
+<li>全局配置：options {};</li>
+<li>日志子系统配置：logging {};</li>
+<li>区域定义：本机能够为哪些zone进行解析，就要定义哪些zone<br>zone “ZONE_NAME” IN {};<br><strong>注意：</strong></li>
+<li>任何服务程序如果期望其能够通过网络被其它主机访问，至少应该监听在一个能与外部主机通信的<br>IP地址上 </li>
+<li>缓存名称服务器的配置：监听外部地址即可  </li>
+<li>dnssec: 建议关闭dnssec，设为no</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Linux基础</category>
+      </categories>
+      <tags>
+        <tag>Linux从入门到放弃</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>磁盘存储和文件系统管理</title>
     <url>/2022/08/07/Disk/</url>
     <content><![CDATA[<h1 id="磁盘管理与文件系统"><a href="#磁盘管理与文件系统" class="headerlink" title="磁盘管理与文件系统"></a>磁盘管理与文件系统</h1><p><strong>前言</strong><br>磁盘是计算机主要的存储介质，可以存储大量的二进制数据，并且断电后也能保持数据不丢失，使用磁盘存储数据的时候我们可以将磁盘划分成我们所需要的格式来进行使用</p>
@@ -1056,90 +1142,46 @@
       </tags>
   </entry>
   <entry>
-    <title>DNS服务</title>
-    <url>/2022/09/22/DNS/</url>
-    <content><![CDATA[<p class="note note-success"> DNS一般指域名系统。 域名系统（英文：Domain Name System，缩写：DNS）是互联网的一项服务。它作为将域名和IP地址相互映射的一个分布式数据库，能够使人更方便地访问互联网。DNS使用UDP端口53 </p>
-<span id="more"></span>  
+    <title>Docker镜像加速</title>
+    <url>/2023/03/07/Docker%E9%95%9C%E5%83%8F%E5%8A%A0%E9%80%9F/</url>
+    <content><![CDATA[<h1 id="Docker-镜像加速配置"><a href="#Docker-镜像加速配置" class="headerlink" title="Docker 镜像加速配置"></a>Docker 镜像加速配置</h1><p>国内从DockerHub拉取镜像有时会遇到困难，此时可以配置镜像加速器。</p>
+<p>Docker官方和国内很多云服务商都提供了国内加速器服务，建议根据运行docker的云平台选择对应的镜像加速服务。</p>
+<p>下面列出国内常用的加速站点，排名不分先后,总体来说阿里云速度较稳定。</p>
+<p>docker中国区官方镜像加速：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">https://registry.docker-cn.com</span><br></pre></td></tr></table></figure>
 
-<h1 id="名字解析介绍和DNS"><a href="#名字解析介绍和DNS" class="headerlink" title="名字解析介绍和DNS"></a>名字解析介绍和DNS</h1><h2 id="DNS服务工作原理"><a href="#DNS服务工作原理" class="headerlink" title="DNS服务工作原理"></a>DNS服务工作原理</h2><p> <img src="/../image.assets/1664088991760.png" alt="1664088991760"> </p>
-<h2 id="DNS查询类型"><a href="#DNS查询类型" class="headerlink" title="DNS查询类型"></a>DNS查询类型</h2><p> <img src="/../image.assets/1664089216470.png" alt="1664089216470"> </p>
-<ul>
-<li>递归查询：<br>是指DNS服务器在收到用户发起的请求时，必须向用户返回一个准确的查询结果。如果DNS服务器<br>本地没有存储与之对应的信息，则该服务器需要询问其他服务器，并将返回的查询结构提交给用<br>户。<br>一般客户机和本地DNS服务器之间属于递归查询，即当客户机向DNS服务器发出请求后,若DNS服<br>务器本身不能解析，则会向另外的DNS服务器发出查询请求，得到最终的肯定或否定的结果后转交<br>给客户机。此查询的源和目标保持不变,为了查询结果只需要发起一次查询<br>递归算法:客户端向LocalDNS发起域名查询–&gt;localDNS不知道域名对应的IP–&gt;但它知道谁知道-&gt;他<br>代为帮客户端去查找–&gt;最后再返回最终结果</li>
-<li>迭代查询：<br>是指DNS服务器在收到用户发起的请求时，并不直接回复查询结果，而是告诉另一台DNS服务器的<br>地址，用户再向这台DNS服务器提交请求，这样依次反复，直到返回查询结果。<br>一般情况下(有例外)本地的DNS服务器向其它DNS服务器的查询属于迭代查询,如：若对方不能返回<br>权威的结果，则它会向下一个DNS服务器(参考前一个DNS服务器返回的结果)再次发起进行查询，<br>直到返回查询的结果为止。此查询的源不变,但查询的目标不断变化,为查询结果一般需要发起多次<br>查询</li>
-<li>迭代算法︰<br>客户端向LocalDNS发起域名查询–&gt;localDNS不知道域名对应的IP–&gt;但它知道谁知道并<br>推荐客户端应该找谁–&gt;客户端自己去找它</li>
-<li>DNS缓存:<br>DNS缓存是将解析数据存储在靠近发起请求的客户端的位置，也可以说DNS数据是可以缓存在任意<br>位置，最终目的是以此减少递归查询过程，可以更快的让用户获得请求结果。</li>
-</ul>
-<h2 id="解析类型"><a href="#解析类型" class="headerlink" title="解析类型"></a>解析类型</h2><ul>
-<li>FQDN –&gt; IP 正向解析  </li>
-<li>IP –&gt; FQDN 反向解析<br><strong>注意：正反向解析是两个不同的名称空间，是两棵不同的解析树</strong></li>
-</ul>
-<h2 id="完整查询流程"><a href="#完整查询流程" class="headerlink" title="完整查询流程"></a>完整查询流程</h2><figure class="highlight text"><table><tr><td class="code"><pre><span class="line">Client --&gt;hosts文件 --&gt; Client DNS Service Local Cache --&gt; DNS Server (recursion递</span><br><span class="line">归) --&gt; DNS Server Cache --&gt;DNS iteration(迭代) --&gt; 根--&gt; 顶级域名DNS--&gt;二级域名DNS…</span><br></pre></td></tr></table></figure>
+<p>网易镜像加速：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">http://hub-mirror.c.163.com</span><br></pre></td></tr></table></figure>
 
-<h1 id="DNS服务相关概念和技术"><a href="#DNS服务相关概念和技术" class="headerlink" title="DNS服务相关概念和技术"></a>DNS服务相关概念和技术</h1><h2 id="各种资源记录"><a href="#各种资源记录" class="headerlink" title="各种资源记录"></a>各种资源记录</h2><p>区域解析库：由众多资源记录RR(Resource Record)组成<br>记录类型：A, AAAA, PTR, SOA, NS, CNAME, MX</p>
-<ul>
-<li>SOA：Start Of Authority，起始授权记录；一个区域解析库有且仅能有一个SOA记录，必须位于解析库的第一条记录  </li>
-<li>A：internet Address，作用，FQDN –&gt; IP  </li>
-<li>AAAA：FQDN –&gt; IPv6  </li>
-<li>PTR：PoinTeR，IP –&gt; FQDN  </li>
-<li>NS：Name Server，专用于标明当前区域的DNS服务器  </li>
-<li>CNAME ： Canonical Name，别名记录  </li>
-<li>MX：Mail eXchanger，邮件交换器  </li>
-<li>TXT：对域名进行标识和说明的一种方式，一般做验证记录时会使用此项，如：SPF（反垃圾邮<br>件）记录，https验证等，如下示例：  <figure class="highlight text"><table><tr><td class="code"><pre><span class="line">_dnsauth TXT 2012011200000051qgs69bwoh4h6nht4n1h0lr038x</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h3 id="SOA记录"><a href="#SOA记录" class="headerlink" title="SOA记录"></a>SOA记录</h3><p>name: 当前区域的名字，例如”magedu.org.”<br>value: 有多部分组成<br>注意：</p>
-<ol>
-<li>当前区域的主DNS服务器的FQDN，也可以使用当前区域的名字，只是注释功能，可以不需要配置<br>对应的NS记录和A记录</li>
-<li>当前区域管理员的邮箱地址；但地址中不能使用@符号，一般用.替换，例如：admin.magedu.org</li>
-<li>主从服务区域传输相关定义以及否定的答案的统一的TTL</li>
-</ol>
-<p><strong>范例</strong>  </p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">magedu.org. 86400 IN SOA ns.magedu.org. nsadmin.magedu.org. (</span><br><span class="line">2015042201 ;序列号</span><br><span class="line">2H ;刷新时间</span><br><span class="line">10M ;重试时间</span><br><span class="line">1W ;过期时间</span><br><span class="line">1D ;否定答案的TTL值</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>中国科技大学镜像加速：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">https://docker.mirrors.ustc.edu.cn</span><br></pre></td></tr></table></figure>
 
-<h3 id="NS记录"><a href="#NS记录" class="headerlink" title="NS记录"></a>NS记录</h3><p>name: 当前区域的名字<br>value: 当前区域的某DNS服务器的名字，例如: ns.magedu.org.<br>注意：</p>
-<ol>
-<li>相邻的两个资源记录的name相同时，后续的可省略</li>
-<li>对NS记录而言，任何一个ns记录后面的服务器名字，都应该在后续有一个A记录</li>
-<li>一个区域可以有多个NS记录<br>范例：  <figure class="highlight text"><table><tr><td class="code"><pre><span class="line">magedu.org. IN NS ns1.magedu.org.</span><br><span class="line">magedu.org. IN NS ns2.magedu.org.</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h3 id="MX记录"><a href="#MX记录" class="headerlink" title="MX记录"></a>MX记录</h3><p>name: 当前区域的名字<br>value: 当前区域的某邮件服务器(smtp服务器)的主机名<br><strong>注意：</strong>  </p>
-<ol>
-<li>一个区域内，MX记录可有多个；但每个记录的value之前应该有一个数字(0-99)，表示此服务器的优先级；数字越小优先级越高  </li>
-<li>对MX记录而言，任何一个MX记录后面的服务器名字，都应该在后续有一个A记录<br>范例：<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">magedu.org. IN MX 10 mx1.magedu.org.</span><br><span class="line">IN MX 20 mx2.magedu.org.</span><br><span class="line">mx1 A 10.0.0.100</span><br><span class="line">mx2 A 10.0.0.200  </span><br></pre></td></tr></table></figure></li>
-</ol>
-<h3 id="A记录"><a href="#A记录" class="headerlink" title="A记录"></a>A记录</h3><p>name: 某主机的FQDN，例如：<a href="http://www.magedu.org/">www.magedu.org</a>.<br>value: 主机名对应主机的IP地址<br>避免用户写错名称时给错误答案，可通过泛域名解析进行解析至某特定地址<br>范例：  </p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">www.magedu.org. IN A 1.1.1.1</span><br><span class="line">www.magedu.org. IN A 2.2.2.2</span><br><span class="line">mx1.magedu.org. IN A 3.3.3.3</span><br><span class="line">mx2.magedu.org. IN A 4.4.4.4</span><br><span class="line">$GENERATE 1-254 HOST$ IN A 1.2.3.$</span><br><span class="line">*.magedu.org. IN A 5.5.5.5</span><br><span class="line">magedu.org. IN A 6.6.6.6</span><br><span class="line">#注意：如果有和DNS的IP相同的多个同名的A记录，优先返回DNS的本机IP  </span><br></pre></td></tr></table></figure>
-<h3 id="AAAA记录"><a href="#AAAA记录" class="headerlink" title="AAAA记录"></a>AAAA记录</h3><figure class="highlight text"><table><tr><td class="code"><pre><span class="line">name: FQDN  </span><br><span class="line">value: IPv6  </span><br></pre></td></tr></table></figure>
-<h3 id="PTR记录"><a href="#PTR记录" class="headerlink" title="PTR记录"></a>PTR记录</h3><figure class="highlight text"><table><tr><td class="code"><pre><span class="line">name: IP，有特定格式，把IP地址反过来写，1.2.3.4，要写作4.3.2.1；而有特定后缀：in-</span><br><span class="line">addr.arpa.，所以完整写法为：4.3.2.1.in-addr.arpa.</span><br><span class="line">value: FQDN</span><br></pre></td></tr></table></figure>
-<p>注意：网络地址及后缀可省略；主机地址依然需要反着写<br>例如：</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">4.3.2.1.in-addr.arpa. IN PTR www.magedu.org.</span><br><span class="line">#如1.2.3为网络地址，可简写成：</span><br><span class="line">4 IN PTR www.magedu.org.</span><br></pre></td></tr></table></figure>
-<h3 id="CNAME别名记录"><a href="#CNAME别名记录" class="headerlink" title="CNAME别名记录"></a>CNAME别名记录</h3><figure class="highlight text"><table><tr><td class="code"><pre><span class="line">name: 别名的FQDN</span><br><span class="line">value: 真正名字的FQDN  </span><br></pre></td></tr></table></figure>
-<p><strong>例如</strong> </p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">www.magedu.org. IN CNAME websrv.magedu.org.</span><br></pre></td></tr></table></figure>
+<p>腾讯云镜像加速：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">https://mirror.ccs.tencentyun.com</span><br></pre></td></tr></table></figure>
 
+<p>阿里云镜像加速：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">https://ung2thfc.mirror.aliyuncs.com</span><br></pre></td></tr></table></figure>
 
+<p>修改daemon配置文件&#x2F;etc&#x2F;docker&#x2F;daemon.json来使用加速器</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">/etc/docker/daemon.json</span><br></pre></td></tr></table></figure>
 
-<h2 id="DNS软件bind"><a href="#DNS软件bind" class="headerlink" title="DNS软件bind"></a>DNS软件bind</h2><p>DNS服务器软件：bind，powerdns，dnsmasq，unbound，coredns  </p>
-<h3 id="bind相关程序包"><a href="#bind相关程序包" class="headerlink" title="bind相关程序包"></a>bind相关程序包</h3><p>yum list all bind* </p>
-<p>bind：服务器<br>bind-utils: 客户端<br>bind-libs：相关库,依赖关系自动安装<br>bind-chroot: 安全包，将dns相关文件放至 &#x2F;var&#x2F;named&#x2F;chroot&#x2F;</p>
-<p><strong>范例：安装bind软件</strong>  </p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">[root@centos8 ~]#dnf -y install bind bind-utils</span><br><span class="line">[root@ubuntu2004 ~]#apt -y install bind9 bind9-utils</span><br></pre></td></tr></table></figure>
+<p>加入如下内容</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line"><span class="attr">&quot;registry-mirrors&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">  <span class="string">&quot;https://ung2thfc.mirror.aliyuncs.com&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="string">&quot;https://mirror.ccs.tencentyun.com&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="string">&quot;https://registry.docker-cn.com&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="string">&quot;http://hub-mirror.c.163.com&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="string">&quot;https://docker.mirrors.ustc.edu.cn&quot;</span><span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
 
-<h3 id="bind包相关文件"><a href="#bind包相关文件" class="headerlink" title="bind包相关文件"></a>bind包相关文件</h3><p>BIND主程序：&#x2F;usr&#x2F;sbin&#x2F;named<br>服务脚本和Unit名称：&#x2F;etc&#x2F;rc.d&#x2F;init.d&#x2F;named，&#x2F;usr&#x2F;lib&#x2F;systemd&#x2F;system&#x2F;named.service<br>主配置文件：&#x2F;etc&#x2F;named.conf, &#x2F;etc&#x2F;named.rfc1912.zones, &#x2F;etc&#x2F;rndc.key<br>管理工具：&#x2F;usr&#x2F;sbin&#x2F;rndc：remote name domain controller，默认与bind安装在同一主机，且<br>只能通过127.0.0.1连接named进程，提供辅助性的管理功能；953&#x2F;tcp<br>解析库文件：&#x2F;var&#x2F;named&#x2F;ZONE_NAME.ZONE<br>注意：<br>(1) 一台物理服务器可同时为多个区域提供解析<br>(2) 必须要有根区域文件；named.ca<br>(3) 应该有两个（如果包括ipv6的，应该更多）实现localhost和本地回环地址的解析库</p>
-<h3 id="主配置文件"><a href="#主配置文件" class="headerlink" title="主配置文件"></a>主配置文件</h3><ul>
-<li>全局配置：options {};</li>
-<li>日志子系统配置：logging {};</li>
-<li>区域定义：本机能够为哪些zone进行解析，就要定义哪些zone<br>zone “ZONE_NAME” IN {};<br><strong>注意：</strong></li>
-<li>任何服务程序如果期望其能够通过网络被其它主机访问，至少应该监听在一个能与外部主机通信的<br>IP地址上 </li>
-<li>缓存名称服务器的配置：监听外部地址即可  </li>
-<li>dnssec: 建议关闭dnssec，设为no</li>
-</ul>
+<p>加载重启docker</p>
+<p>在终端输入以下命令</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">systemctl daemon-reload</span><br><span class="line"></span><br><span class="line">systemctl restart docker</span><br></pre></td></tr></table></figure>
+
+<p> 打开终端执行docker info命令，可见下面信息 </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">....</span><br><span class="line">Labels:</span><br><span class="line">Experimental: false</span><br><span class="line">Insecure Registries:</span><br><span class="line"> 127.0.0.0/8</span><br><span class="line">Registry Mirrors:</span><br><span class="line"> https://ung2thfc.mirror.aliyuncs.com/</span><br><span class="line"> https://mirror.ccs.tencentyun.com/</span><br><span class="line"> https://registry.docker-cn.com/</span><br><span class="line"> http://hub-mirror.c.163.com/</span><br><span class="line"> https://docker.mirrors.ustc.edu.cn/</span><br><span class="line">Live Restore Enabled: false</span><br></pre></td></tr></table></figure>
+
+<p>还可以使用如下脚本进行设置，执行前检查自己的环境,下列脚本可以用于新装Docker环境的机器</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line">tee /etc/docker/daemon.json &lt;&lt;-&#x27;EOF&#x27;</span><br><span class="line">&#123;</span><br><span class="line">&quot;registry-mirrors&quot;: [</span><br><span class="line">  &quot;https://ung2thfc.mirror.aliyuncs.com&quot;,</span><br><span class="line">  &quot;https://mirror.ccs.tencentyun.com&quot;,</span><br><span class="line">  &quot;https://registry.docker-cn.com&quot;,</span><br><span class="line">  &quot;http://hub-mirror.c.163.com&quot;,</span><br><span class="line">  &quot;https://docker.mirrors.ustc.edu.cn&quot;]</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br><span class="line">systemctl daemon-reload &amp;&amp; systemctl restart docker</span><br></pre></td></tr></table></figure>
+
 ]]></content>
       <categories>
-        <category>Linux基础</category>
+        <category>Docker</category>
       </categories>
-      <tags>
-        <tag>Linux从入门到放弃</tag>
-      </tags>
   </entry>
   <entry>
     <title>Linux防火墙</title>
@@ -2372,6 +2414,22 @@
       </tags>
   </entry>
   <entry>
+    <title>Redis一键安装脚本</title>
+    <url>/2022/12/17/Redis%E4%B8%80%E9%94%AE%E5%AE%89%E8%A3%85%E8%84%9A%E6%9C%AC/</url>
+    <content><![CDATA[<ul>
+<li>在线安装</li>
+<li>系统</li>
+</ul>
+<p>Centos7.9 、Rockylinux8.5、Centos8.5、ubuntu20.04实测安装成功</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/bash</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"></span></span><br><span class="line"><span class="language-bash"><span class="comment">#********************************************************************</span></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">Author:          yuankun</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">Date:            2022-12-17</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">FileName：       install_redis.sh</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">URL:             https://gzyuankun.github.io</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">Description:     The <span class="built_in">test</span> script</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">Copyright (C):   2020 All rights reserved</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">********************************************************************</span></span><br><span class="line">REDIS_VERSION=redis-6.2.5</span><br><span class="line">PASSWORD=123456</span><br><span class="line">INSTALL_DIR=/usr/local/src/redis</span><br><span class="line">CPUS=`lscpu |awk &#x27;/^CPU\(s\)/&#123;print $2&#125;&#x27;`</span><br><span class="line"></span><br><span class="line">. /etc/os-release</span><br><span class="line"></span><br><span class="line">color () &#123;</span><br><span class="line">    RES_COL=60</span><br><span class="line">    MOVE_TO_COL=&quot;echo -en \\033[$&#123;RES_COL&#125;G&quot;</span><br><span class="line">    SETCOLOR_SUCCESS=&quot;echo -en \\033[1;32m&quot;</span><br><span class="line">    SETCOLOR_FAILURE=&quot;echo -en \\033[1;31m&quot;</span><br><span class="line">    SETCOLOR_WARNING=&quot;echo -en \\033[1;33m&quot;</span><br><span class="line">    SETCOLOR_NORMAL=&quot;echo -en \E[0m&quot;</span><br><span class="line">    echo -n &quot;$1&quot; &amp;&amp; $MOVE_TO_COL</span><br><span class="line">    echo -n &quot;[&quot;</span><br><span class="line">    if [ $2 = &quot;success&quot; -o $2 = &quot;0&quot; ] ;then</span><br><span class="line">        $&#123;SETCOLOR_SUCCESS&#125;</span><br><span class="line">        echo -n $&quot;  OK  &quot;    </span><br><span class="line">    elif [ $2 = &quot;failure&quot; -o $2 = &quot;1&quot;  ] ;then </span><br><span class="line">        $&#123;SETCOLOR_FAILURE&#125;</span><br><span class="line">        echo -n $&quot;FAILED&quot;</span><br><span class="line">    else</span><br><span class="line">        $&#123;SETCOLOR_WARNING&#125;</span><br><span class="line">        echo -n $&quot;WARNING&quot;</span><br><span class="line">    fi</span><br><span class="line">    $&#123;SETCOLOR_NORMAL&#125;</span><br><span class="line">    echo -n &quot;]&quot;</span><br><span class="line">    echo </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">prepare()&#123;</span><br><span class="line">    if [ $ID = &quot;centos&quot; -o $ID = &quot;rocky&quot; ];then</span><br><span class="line">        yum  -y install gcc make systemd-devel</span><br><span class="line">    else</span><br><span class="line">	    apt update </span><br><span class="line">	    apt -y install  gcc make libjemalloc-dev libsystemd-dev</span><br><span class="line">    fi</span><br><span class="line">    if [ $? -eq 0 ];then</span><br><span class="line">        color &quot;安装软件包成功&quot;  0</span><br><span class="line">    else</span><br><span class="line">        color &quot;安装软件包失败，请检查网络配置&quot; 1</span><br><span class="line">        exit</span><br><span class="line">    fi</span><br><span class="line">&#125;</span><br><span class="line">install() &#123;   </span><br><span class="line">    if [ ! -f $&#123;REDIS_VERSION&#125;.tar.gz ];then</span><br><span class="line">        wget http://download.redis.io/releases/$&#123;REDIS_VERSION&#125;.tar.gz || &#123; color &quot;Redis 源码下载失败&quot; 1 ; exit; &#125;</span><br><span class="line">    fi</span><br><span class="line">    tar xf $&#123;REDIS_VERSION&#125;.tar.gz -C /usr/local/src</span><br><span class="line">    cd /usr/local/src/$&#123;REDIS_VERSION&#125;</span><br><span class="line">    make -j $CUPS USE_SYSTEMD=yes PREFIX=$&#123;INSTALL_DIR&#125; install &amp;&amp; color &quot;Redis 编译安装完成&quot; 0 || &#123; color &quot;Redis 编译安装失败&quot; 1 ;exit ; &#125;</span><br><span class="line"></span><br><span class="line">    ln -s $&#123;INSTALL_DIR&#125;/bin/redis-*  /usr/bin/</span><br><span class="line">    </span><br><span class="line">    mkdir -p $&#123;INSTALL_DIR&#125;/&#123;etc,log,data,run&#125;</span><br><span class="line">  </span><br><span class="line">    cp redis.conf  $&#123;INSTALL_DIR&#125;/etc/</span><br><span class="line"></span><br><span class="line">    sed -i -e &#x27;s/bind 127.0.0.1/bind 0.0.0.0/&#x27;  -e &quot;/# requirepass/a requirepass $PASSWORD&quot;  -e &quot;/^dir .*/c dir $&#123;INSTALL_DIR&#125;/data/&quot;  -e &quot;/logfile .*/c logfile $&#123;INSTALL_DIR&#125;/log/redis-6379.log&quot;  -e  &quot;/^pidfile .*/c  pidfile $&#123;INSTALL_DIR&#125;/run/redis_6379.pid&quot; $&#123;INSTALL_DIR&#125;/etc/redis.conf</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    if id redis &amp;&gt; /dev/null ;then </span><br><span class="line">         color &quot;Redis 用户已存在&quot; 1 </span><br><span class="line">    else</span><br><span class="line">         useradd -r -s /sbin/nologin redis</span><br><span class="line">         color &quot;Redis 用户创建成功&quot; 0</span><br><span class="line">    fi</span><br><span class="line"></span><br><span class="line">    chown -R redis.redis $&#123;INSTALL_DIR&#125;</span><br><span class="line"></span><br><span class="line">    cat &gt;&gt; /etc/sysctl.conf &lt;&lt;EOF</span><br><span class="line">net.core.somaxconn = 1024</span><br><span class="line">vm.overcommit_memory = 1</span><br><span class="line">EOF</span><br><span class="line">    sysctl -p </span><br><span class="line">    if [ $ID = &quot;centos&quot; -o $ID = &quot;rocky&quot; ];then</span><br><span class="line">        echo &#x27;echo never &gt; /sys/kernel/mm/transparent_hugepage/enabled&#x27; &gt;&gt; /etc/rc.d/rc.local</span><br><span class="line">        chmod +x /etc/rc.d/rc.local</span><br><span class="line">        /etc/rc.d/rc.local </span><br><span class="line">    else </span><br><span class="line">        echo -e &#x27;#!/bin/bash\necho never &gt; /sys/kernel/mm/transparent_hugepage/enabled&#x27; &gt;&gt; /etc/rc.local</span><br><span class="line">        chmod +x /etc/rc.local</span><br><span class="line">        /etc/rc.local</span><br><span class="line">    fi</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">cat &gt; /lib/systemd/system/redis.service &lt;&lt;EOF</span><br><span class="line">[Unit]</span><br><span class="line">Description=Redis persistent key-value database</span><br><span class="line">After=network.target</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">ExecStart=$&#123;INSTALL_DIR&#125;/bin/redis-server $&#123;INSTALL_DIR&#125;/etc/redis.conf --supervised systemd</span><br><span class="line">ExecStop=/bin/kill -s QUIT \$MAINPID</span><br><span class="line">Type=notify</span><br><span class="line">User=redis</span><br><span class="line">Group=redis</span><br><span class="line">RuntimeDirectory=redis</span><br><span class="line">RuntimeDirectoryMode=0755</span><br><span class="line">LimitNOFILE=1000000</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br><span class="line"></span><br><span class="line">EOF</span><br><span class="line">     systemctl daemon-reload </span><br><span class="line">     systemctl enable --now  redis &amp;&gt; /dev/null </span><br><span class="line">     if [ $? -eq 0 ];then</span><br><span class="line">         color &quot;Redis 服务启动成功,Redis信息如下:&quot;  0 </span><br><span class="line">     else</span><br><span class="line">         color &quot;Redis 启动失败&quot; 1 </span><br><span class="line">         exit</span><br><span class="line">     fi</span><br><span class="line">     sleep 2</span><br><span class="line">     redis-cli -a $PASSWORD INFO Server 2&gt; /dev/null</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">prepare </span><br><span class="line">install </span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>shell脚本</category>
+      </categories>
+      <tags>
+        <tag>Linux从入门到放弃</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Nginx核心配置文件</title>
     <url>/2023/01/10/Nginx%E6%A0%B8%E5%BF%83%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/</url>
     <content><![CDATA[<h1 id="Nginx核心配置文件"><a href="#Nginx核心配置文件" class="headerlink" title="Nginx核心配置文件"></a>Nginx核心配置文件</h1><h2 id="配置文件说明"><a href="#配置文件说明" class="headerlink" title="配置文件说明"></a>配置文件说明</h2><p>nginx官网文档说明</p>
@@ -2501,22 +2559,6 @@
 ]]></content>
       <categories>
         <category>Nginx</category>
-      </categories>
-      <tags>
-        <tag>Linux从入门到放弃</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Redis一键安装脚本</title>
-    <url>/2022/12/17/Redis%E4%B8%80%E9%94%AE%E5%AE%89%E8%A3%85%E8%84%9A%E6%9C%AC/</url>
-    <content><![CDATA[<ul>
-<li>在线安装</li>
-<li>系统</li>
-</ul>
-<p>Centos7.9 、Rockylinux8.5、Centos8.5、ubuntu20.04实测安装成功</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/bash</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"></span></span><br><span class="line"><span class="language-bash"><span class="comment">#********************************************************************</span></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">Author:          yuankun</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">Date:            2022-12-17</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">FileName：       install_redis.sh</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">URL:             https://gzyuankun.github.io</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">Description:     The <span class="built_in">test</span> script</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">Copyright (C):   2020 All rights reserved</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">********************************************************************</span></span><br><span class="line">REDIS_VERSION=redis-6.2.5</span><br><span class="line">PASSWORD=123456</span><br><span class="line">INSTALL_DIR=/usr/local/src/redis</span><br><span class="line">CPUS=`lscpu |awk &#x27;/^CPU\(s\)/&#123;print $2&#125;&#x27;`</span><br><span class="line"></span><br><span class="line">. /etc/os-release</span><br><span class="line"></span><br><span class="line">color () &#123;</span><br><span class="line">    RES_COL=60</span><br><span class="line">    MOVE_TO_COL=&quot;echo -en \\033[$&#123;RES_COL&#125;G&quot;</span><br><span class="line">    SETCOLOR_SUCCESS=&quot;echo -en \\033[1;32m&quot;</span><br><span class="line">    SETCOLOR_FAILURE=&quot;echo -en \\033[1;31m&quot;</span><br><span class="line">    SETCOLOR_WARNING=&quot;echo -en \\033[1;33m&quot;</span><br><span class="line">    SETCOLOR_NORMAL=&quot;echo -en \E[0m&quot;</span><br><span class="line">    echo -n &quot;$1&quot; &amp;&amp; $MOVE_TO_COL</span><br><span class="line">    echo -n &quot;[&quot;</span><br><span class="line">    if [ $2 = &quot;success&quot; -o $2 = &quot;0&quot; ] ;then</span><br><span class="line">        $&#123;SETCOLOR_SUCCESS&#125;</span><br><span class="line">        echo -n $&quot;  OK  &quot;    </span><br><span class="line">    elif [ $2 = &quot;failure&quot; -o $2 = &quot;1&quot;  ] ;then </span><br><span class="line">        $&#123;SETCOLOR_FAILURE&#125;</span><br><span class="line">        echo -n $&quot;FAILED&quot;</span><br><span class="line">    else</span><br><span class="line">        $&#123;SETCOLOR_WARNING&#125;</span><br><span class="line">        echo -n $&quot;WARNING&quot;</span><br><span class="line">    fi</span><br><span class="line">    $&#123;SETCOLOR_NORMAL&#125;</span><br><span class="line">    echo -n &quot;]&quot;</span><br><span class="line">    echo </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">prepare()&#123;</span><br><span class="line">    if [ $ID = &quot;centos&quot; -o $ID = &quot;rocky&quot; ];then</span><br><span class="line">        yum  -y install gcc make systemd-devel</span><br><span class="line">    else</span><br><span class="line">	    apt update </span><br><span class="line">	    apt -y install  gcc make libjemalloc-dev libsystemd-dev</span><br><span class="line">    fi</span><br><span class="line">    if [ $? -eq 0 ];then</span><br><span class="line">        color &quot;安装软件包成功&quot;  0</span><br><span class="line">    else</span><br><span class="line">        color &quot;安装软件包失败，请检查网络配置&quot; 1</span><br><span class="line">        exit</span><br><span class="line">    fi</span><br><span class="line">&#125;</span><br><span class="line">install() &#123;   </span><br><span class="line">    if [ ! -f $&#123;REDIS_VERSION&#125;.tar.gz ];then</span><br><span class="line">        wget http://download.redis.io/releases/$&#123;REDIS_VERSION&#125;.tar.gz || &#123; color &quot;Redis 源码下载失败&quot; 1 ; exit; &#125;</span><br><span class="line">    fi</span><br><span class="line">    tar xf $&#123;REDIS_VERSION&#125;.tar.gz -C /usr/local/src</span><br><span class="line">    cd /usr/local/src/$&#123;REDIS_VERSION&#125;</span><br><span class="line">    make -j $CUPS USE_SYSTEMD=yes PREFIX=$&#123;INSTALL_DIR&#125; install &amp;&amp; color &quot;Redis 编译安装完成&quot; 0 || &#123; color &quot;Redis 编译安装失败&quot; 1 ;exit ; &#125;</span><br><span class="line"></span><br><span class="line">    ln -s $&#123;INSTALL_DIR&#125;/bin/redis-*  /usr/bin/</span><br><span class="line">    </span><br><span class="line">    mkdir -p $&#123;INSTALL_DIR&#125;/&#123;etc,log,data,run&#125;</span><br><span class="line">  </span><br><span class="line">    cp redis.conf  $&#123;INSTALL_DIR&#125;/etc/</span><br><span class="line"></span><br><span class="line">    sed -i -e &#x27;s/bind 127.0.0.1/bind 0.0.0.0/&#x27;  -e &quot;/# requirepass/a requirepass $PASSWORD&quot;  -e &quot;/^dir .*/c dir $&#123;INSTALL_DIR&#125;/data/&quot;  -e &quot;/logfile .*/c logfile $&#123;INSTALL_DIR&#125;/log/redis-6379.log&quot;  -e  &quot;/^pidfile .*/c  pidfile $&#123;INSTALL_DIR&#125;/run/redis_6379.pid&quot; $&#123;INSTALL_DIR&#125;/etc/redis.conf</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    if id redis &amp;&gt; /dev/null ;then </span><br><span class="line">         color &quot;Redis 用户已存在&quot; 1 </span><br><span class="line">    else</span><br><span class="line">         useradd -r -s /sbin/nologin redis</span><br><span class="line">         color &quot;Redis 用户创建成功&quot; 0</span><br><span class="line">    fi</span><br><span class="line"></span><br><span class="line">    chown -R redis.redis $&#123;INSTALL_DIR&#125;</span><br><span class="line"></span><br><span class="line">    cat &gt;&gt; /etc/sysctl.conf &lt;&lt;EOF</span><br><span class="line">net.core.somaxconn = 1024</span><br><span class="line">vm.overcommit_memory = 1</span><br><span class="line">EOF</span><br><span class="line">    sysctl -p </span><br><span class="line">    if [ $ID = &quot;centos&quot; -o $ID = &quot;rocky&quot; ];then</span><br><span class="line">        echo &#x27;echo never &gt; /sys/kernel/mm/transparent_hugepage/enabled&#x27; &gt;&gt; /etc/rc.d/rc.local</span><br><span class="line">        chmod +x /etc/rc.d/rc.local</span><br><span class="line">        /etc/rc.d/rc.local </span><br><span class="line">    else </span><br><span class="line">        echo -e &#x27;#!/bin/bash\necho never &gt; /sys/kernel/mm/transparent_hugepage/enabled&#x27; &gt;&gt; /etc/rc.local</span><br><span class="line">        chmod +x /etc/rc.local</span><br><span class="line">        /etc/rc.local</span><br><span class="line">    fi</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">cat &gt; /lib/systemd/system/redis.service &lt;&lt;EOF</span><br><span class="line">[Unit]</span><br><span class="line">Description=Redis persistent key-value database</span><br><span class="line">After=network.target</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">ExecStart=$&#123;INSTALL_DIR&#125;/bin/redis-server $&#123;INSTALL_DIR&#125;/etc/redis.conf --supervised systemd</span><br><span class="line">ExecStop=/bin/kill -s QUIT \$MAINPID</span><br><span class="line">Type=notify</span><br><span class="line">User=redis</span><br><span class="line">Group=redis</span><br><span class="line">RuntimeDirectory=redis</span><br><span class="line">RuntimeDirectoryMode=0755</span><br><span class="line">LimitNOFILE=1000000</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br><span class="line"></span><br><span class="line">EOF</span><br><span class="line">     systemctl daemon-reload </span><br><span class="line">     systemctl enable --now  redis &amp;&gt; /dev/null </span><br><span class="line">     if [ $? -eq 0 ];then</span><br><span class="line">         color &quot;Redis 服务启动成功,Redis信息如下:&quot;  0 </span><br><span class="line">     else</span><br><span class="line">         color &quot;Redis 启动失败&quot; 1 </span><br><span class="line">         exit</span><br><span class="line">     fi</span><br><span class="line">     sleep 2</span><br><span class="line">     redis-cli -a $PASSWORD INFO Server 2&gt; /dev/null</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">prepare </span><br><span class="line">install </span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>shell脚本</category>
       </categories>
       <tags>
         <tag>Linux从入门到放弃</tag>
@@ -3202,6 +3244,66 @@
 ]]></content>
   </entry>
   <entry>
+    <title>Zabbix介绍和部署</title>
+    <url>/2023/03/02/Zabbix/</url>
+    <content><![CDATA[<h1 id="常见监控方案"><a href="#常见监控方案" class="headerlink" title="常见监控方案"></a>常见监控方案</h1><p>开源监控软件：cacti、nagios、zabbix、smokeping、open-falcon等</p>
+<h1 id="Zabbix使用场景及系统概述"><a href="#Zabbix使用场景及系统概述" class="headerlink" title="Zabbix使用场景及系统概述"></a>Zabbix使用场景及系统概述</h1><p>Zabbix是一个企业级解决方案，支持实时监控数千台服务器，虚拟机和网络设备，采集百万级监控指标，适用于任何IT基础架构、服务、应用程序和资源的解决方案。</p>
+<h2 id="zabbix使用场景"><a href="#zabbix使用场景" class="headerlink" title="zabbix使用场景"></a>zabbix使用场景</h2><p><img src="/../image.assets/1677742555473.png" alt="1677742555473"></p>
+<h2 id="zabbix系统概述"><a href="#zabbix系统概述" class="headerlink" title="zabbix系统概述"></a>zabbix系统概述</h2><p><img src="/../image.assets/1677742581882.png" alt="1677742581882"></p>
+<p><strong>数据采集：</strong></p>
+<p>周期性时序数据</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">主机/对象：服务器、路由器、交换机、存储、防火墙、IP、PORT、URL、自定义监控对象...</span><br><span class="line">采集目标：监控项，指标数据（metrics data）</span><br></pre></td></tr></table></figure>
+
+<p><strong>数据存储：</strong></p>
+<p>监控数据存储系统</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">SQL: MySQL/MariaDB(Zabbix)</span><br><span class="line">NoSQL：Redis(Open-falcon)</span><br><span class="line">rrd: Round Robin Database(Cacti)</span><br></pre></td></tr></table></figure>
+
+<p><strong>数据类型：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">历史数据: 每个监控项采集到的每个监控值</span><br><span class="line">趋势数据: 趋势表里主要保留某个监控项一个小时内历史数据的最大值、最小值和平均值以及该监控项一个小时内所采</span><br><span class="line">集到的数据个数。</span><br></pre></td></tr></table></figure>
+
+<p><strong>阈值：</strong><br>可按照预定义的阈值等级实现分层报警<br><strong>告警机制：</strong><br>email,短信,微信,语音,故障自治愈</p>
+<h2 id="zabbix-核心任务："><a href="#zabbix-核心任务：" class="headerlink" title="zabbix 核心任务："></a>zabbix 核心任务：</h2><p><strong>数据采集：</strong></p>
+<p>数据采集方式：zabbix-server，zabbix-proxy，zabbix-agent</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Agentless：SNMP,Telnet,ssh, IPMI, JMX,</span><br><span class="line">Agent：zabbix agent</span><br></pre></td></tr></table></figure>
+
+<p><strong>数据存储：</strong><br>zabbix database<br><strong>数据展示：</strong><br>zabbix web</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">graph -&gt; screen -&gt; slideshow(将多个screen以幻灯片的方式进行轮流展示)</span><br></pre></td></tr></table></figure>
+
+<p>grafana:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">以zabbix为数据源展示更绚丽的界面</span><br></pre></td></tr></table></figure>
+
+<p><strong>告警通知：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">host (host groups) &lt;- templates #从模板继承告警配置</span><br><span class="line">host -&gt; items -&gt; triggers -&gt; action (条件-conditions, 操作-operations) #自定义告警配置</span><br></pre></td></tr></table></figure>
+
+<h1 id="规划部署"><a href="#规划部署" class="headerlink" title="规划部署"></a>规划部署</h1><h2 id="部署环境："><a href="#部署环境：" class="headerlink" title="部署环境："></a>部署环境：</h2><ul>
+<li>服务器系统：centos7.9，ubuntu20.04</li>
+</ul>
+<h2 id="yum安装zabbix"><a href="#yum安装zabbix" class="headerlink" title="yum安装zabbix"></a>yum安装zabbix</h2><p> <a href="https://www.zabbix.com/cn/download?zabbix=5.0&os_distribution=centos&os_version=7&components=server_frontend_agent&db=mysql&ws=nginx">安装说明</a> </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># Install Zabbix repository</span><br><span class="line">wget https://repo.zabbix.com/zabbix/5.0/rhel/7/x86_64/zabbix-release-5.0-1.el7.noarch.rpm</span><br><span class="line"></span><br><span class="line">yum install zabbix-release-5.0-1.el7.noarch.rpm</span><br><span class="line"></span><br><span class="line">yum clean all</span><br><span class="line"></span><br><span class="line"># 安装Zabbix server，Web前端，agent</span><br><span class="line"></span><br><span class="line">yum install zabbix-server-mysql zabbix-agent</span><br><span class="line"></span><br><span class="line"># Install Zabbix frontend</span><br><span class="line"># Enable Red Hat Software Collections</span><br><span class="line">yum install centos-release-scl</span><br><span class="line"></span><br><span class="line"># 编辑配置文件 /etc/yum.repos.d/zabbix.repo and enable zabbix-frontend repository.</span><br><span class="line">[zabbix-frontend]</span><br><span class="line">...</span><br><span class="line">enabled=1</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"># Install Zabbix frontend packages.</span><br><span class="line">yum install zabbix-web-mysql-scl zabbix-nginx-conf-scl</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 安装数据库</span><br><span class="line"># 在线一键安装脚本地址</span><br><span class="line">https://itshare.work/2022/09/30/MySQLinstallScript/</span><br><span class="line"></span><br><span class="line"># 创建初始数据库</span><br><span class="line"># Make sure you have database server up and running.</span><br><span class="line"># 在数据库主机上运行以下代码</span><br><span class="line">mysql -uroot -p</span><br><span class="line"></span><br><span class="line">mysql&gt; create database zabbix character set utf8 collate utf8_bin;</span><br><span class="line">Query OK, 1 row affected (0.01 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; create user zabbix@localhost identified by &#x27;123456&#x27;;</span><br><span class="line">Query OK, 0 rows affected (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; grant all privileges on zabbix.* to zabbix@localhost;</span><br><span class="line">Query OK, 0 rows affected (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; set global log_bin_trust_function_creators = 1;</span><br><span class="line">Query OK, 0 rows affected (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; quit;</span><br><span class="line"></span><br><span class="line"># 导入初始架构和数据，系统将提示您输入新创建的密码。</span><br><span class="line">[root@centos7 ~]# zcat /usr/share/doc/zabbix-server-mysql-5.0.31/create.sql.gz | mysql -uzabbix -p123456 zabbix</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#Disable log_bin_trust_function_creators option after importing database schema.</span><br><span class="line"># mysql -uroot -p</span><br><span class="line">password</span><br><span class="line">mysql&gt; set global log_bin_trust_function_creators = 0;</span><br><span class="line">mysql&gt; quit;</span><br><span class="line"></span><br><span class="line">#为Zabbix server配置数据库</span><br><span class="line">#编辑配置文件 /etc/zabbix/zabbix_server.conf</span><br><span class="line">DBPassword=12456</span><br><span class="line"></span><br><span class="line"># 为 Zabbix前端配置PHP</span><br><span class="line"># 编辑配置文件 /etc/opt/rh/rh-nginx116/nginx/conf.d/zabbix.conf uncomment and set &#x27;listen&#x27; and &#x27;server_name&#x27; directives.</span><br><span class="line"># listen 80;</span><br><span class="line"># server_name example.com;</span><br><span class="line"></span><br><span class="line"># 编辑配置文件 /etc/opt/rh/rh-php72/php-fpm.d/zabbix.conf add nginx to listen.acl_users directive.</span><br><span class="line">listen.acl_users = apache,nginx</span><br><span class="line"></span><br><span class="line"># Then uncomment and set the right timezone for you.(取消注释，设置时区)</span><br><span class="line">php_value[date.timezone] = Asia/Shanghai</span><br><span class="line"></span><br><span class="line"># 启动Zabbix server和agent进程</span><br><span class="line"># 启动Zabbix server和agent进程，并为它们设置开机自启：</span><br><span class="line"># systemctl restart zabbix-server zabbix-agent rh-nginx116-nginx rh-php72-php-fpm</span><br><span class="line"># systemctl enable zabbix-server zabbix-agent rh-nginx116-nginx rh-php72-php-fpm</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>开始使用</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">http://ip:port</span><br></pre></td></tr></table></figure>
+
+<p><img src="/../image.assets/1677747113512.png" alt="1677747113512"></p>
+<p><img src="/../image.assets/1677747122483.png" alt="1677747122483"></p>
+<p><img src="/../image.assets/1677747141707.png" alt="1677747141707"></p>
+<p><img src="/../image.assets/1677747204306.png" alt="1677747204306"></p>
+<p><img src="/../image.assets/1677747218962.png" alt="1677747218962"></p>
+<p><img src="/../image.assets/1677747236290.png" alt="1677747236290"></p>
+<p><img src="/../image.assets/1677747305904.png" alt="1677747305904"></p>
+<p><img src="/../image.assets/1677747322004.png" alt="1677747322004"></p>
+<h2 id="apt安装"><a href="#apt安装" class="headerlink" title="apt安装"></a>apt安装</h2><p> <a href="https://www.zabbix.com/cn/download?zabbix=5.0&os_distribution=ubuntu&os_version=20.04&components=server_frontend_agent&db=mysql&ws=apache">Zabbix 5.0 LTS for Ubuntu 20.04 (Focal), MySQL, Apache</a> </p>
+<p><img src="/../image.assets/1677748010282.png" alt="1677748010282"></p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Install and configure Zabbix for your platform</span></span><br><span class="line"><span class="comment"># a. Install Zabbix repository</span></span><br><span class="line">wget https://repo.zabbix.com/zabbix/5.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_5.0-1%2Bfocal_all.deb</span><br><span class="line">dpkg -i zabbix-release_5.0-1+focal_all.deb</span><br><span class="line">apt update</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装Zabbix server，Web前端，agent</span></span><br><span class="line">apt install zabbix-server-mysql zabbix-frontend-php zabbix-apache-conf zabbix-agent</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装数据库</span></span><br><span class="line">apt install mysql-server -y</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建初始数据库</span></span><br><span class="line"><span class="comment"># Make sure you have database server up and running.</span></span><br><span class="line"><span class="comment"># 在数据库主机上运行以下代码。</span></span><br><span class="line"><span class="comment"># mysql -uroot -p</span></span><br><span class="line">password</span><br><span class="line">mysql&gt; create database zabbix character <span class="built_in">set</span> utf8 collate utf8_bin;</span><br><span class="line">mysql&gt; create user zabbix@localhost identified by <span class="string">&#x27;123456&#x27;</span>;</span><br><span class="line">mysql&gt; grant all privileges on zabbix.* to zabbix@localhost;</span><br><span class="line">mysql&gt; <span class="built_in">set</span> global log_bin_trust_function_creators = 1;</span><br><span class="line">mysql&gt; quit;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 导入初始架构和数据，系统将提示您输入新创建的密码。</span></span><br><span class="line">zcat /usr/share/doc/zabbix-server-mysql*/create.sql.gz | mysql -uzabbix -p123456 zabbix</span><br><span class="line"></span><br><span class="line"><span class="comment"># Disable log_bin_trust_function_creators option after importing database schema.</span></span><br><span class="line"><span class="comment"># mysql -uroot -p</span></span><br><span class="line">password</span><br><span class="line">mysql&gt; <span class="built_in">set</span> global log_bin_trust_function_creators = 0;</span><br><span class="line">mysql&gt; quit;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 为Zabbix server配置数据库</span></span><br><span class="line"><span class="comment"># 编辑配置文件 /etc/zabbix/zabbix_server.conf</span></span><br><span class="line">DBPassword=123456</span><br><span class="line"></span><br><span class="line"><span class="comment"># 为Zabbix前端配置PHP</span></span><br><span class="line"><span class="comment"># 编辑配置文件 /etc/zabbix/apache.conf uncomment and set the right timezone for you.</span></span><br><span class="line">php_value date.timezone Asia/Shanghai</span><br><span class="line"></span><br><span class="line"><span class="comment"># 动Zabbix server和agent进程</span></span><br><span class="line"><span class="comment"># 启动Zabbix server和agent进程，并为它们设置开机自启：</span></span><br><span class="line">systemctl restart zabbix-server zabbix-agent apache2</span><br><span class="line">systemctl <span class="built_in">enable</span> zabbix-server zabbix-agent apache2</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>Zabbix</category>
+      </categories>
+  </entry>
+  <entry>
     <title>时间同步机制和架构</title>
     <url>/2022/09/17/TimeSynchronization/</url>
     <content><![CDATA[<p class="note note-success">多主机协作工作时，各个主机的时间同步很重要，时间不一致会造成很多重要应用的故障，如：加密协议，日志，集群等， 利用NTP（Network Time Protocol） 协议使网络中的各个计算机时间达到同步。目前NTP协议属于运维基础架构中必备的基本服务之一</p>
@@ -3399,6 +3501,36 @@ my.cnf文件内容如下<figure class="highlight plaintext"><table><tr><td class
       </tags>
   </entry>
   <entry>
+    <title>Docker安装部署</title>
+    <url>/2023/03/07/docker-install/</url>
+    <content><![CDATA[<h1 id="安装和删除方法"><a href="#安装和删除方法" class="headerlink" title="安装和删除方法"></a>安装和删除方法</h1><p>官方文档 : <a href="https://docs.docker.com/engine/install/">https://docs.docker.com/engine/install/</a><br>阿里云文档: <a href="https://developer.aliyun.com/mirror/docker-ce?spm=a2c6h.13651102.0.0.3e221b11gu">https://developer.aliyun.com/mirror/docker-ce?spm=a2c6h.13651102.0.0.3e221b11gu</a></p>
+<h2 id="Ubuntu-安装和删除Docker"><a href="#Ubuntu-安装和删除Docker" class="headerlink" title="Ubuntu 安装和删除Docker"></a>Ubuntu 安装和删除Docker</h2><p>官方文档: <a href="https://docs.docker.com/install/linux/docker-ce/ubuntu/">https://docs.docker.com/install/linux/docker-ce/ubuntu/</a></p>
+<h2 id="CentOS-安装和删除Docker"><a href="#CentOS-安装和删除Docker" class="headerlink" title="CentOS 安装和删除Docker"></a>CentOS 安装和删除Docker</h2><p>官方文档: <a href="https://docs.docker.com/install/linux/docker-ce/centos/">https://docs.docker.com/install/linux/docker-ce/centos/</a><br>CentOS 6 因内核太旧，即使支持安装docker，但会有各种问题，不建议安装<br>CentOS 7 的 extras 源虽然可以安装docker，但包比较旧，建议从官方源或镜像源站点下载安装docker<br>CentOS 8 有新技术 podman 代替 docker<br>因此建议在CentOS 7 上安装 docker<br>参考阿里云文档: <a href="https://developer.aliyun.com/mirror/docker-ce?spm=a2c6h.13651102.0.0.3e221b11gu">https://developer.aliyun.com/mirror/docker-ce?spm=a2c6h.13651102.0.0.3e221b11gu</a></p>
+<h2 id="二进制安装"><a href="#二进制安装" class="headerlink" title="二进制安装"></a>二进制安装</h2><p>本方法适用于无法上网或无法通过包安装方式安装的主机上安装docker<br>安装文档: <a href="https://docs.docker.com/install/linux/docker-ce/binaries/">https://docs.docker.com/install/linux/docker-ce/binaries/</a></p>
+<h3 id="二进制安装下载路径"><a href="#二进制安装下载路径" class="headerlink" title="二进制安装下载路径"></a>二进制安装下载路径</h3><p><a href="https://download.docker.com/linux/">https://download.docker.com/linux/</a><br><a href="https://mirrors.aliyun.com/docker-ce/linux/static/stable/x86_64/">https://mirrors.aliyun.com/docker-ce/linux/static/stable/x86_64/</a></p>
+<p>范例：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">wget https://mirrors.aliyun.com/docker-ce/linux/static/stable/x86_64/docker-20.10.10.tgz?spm=a2c6h.25603864.0.0.1caf15acK1B2NZ</span><br><span class="line"></span><br><span class="line"><span class="comment"># 解压</span></span><br><span class="line">[root@centos7 src]<span class="comment"># tar xf docker-20.10.10.tgz</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># tree</span></span><br><span class="line">[root@centos7 src]<span class="comment"># tree</span></span><br><span class="line">.</span><br><span class="line">├── docker</span><br><span class="line">│   ├── containerd</span><br><span class="line">│   ├── containerd-shim</span><br><span class="line">│   ├── containerd-shim-runc-v2</span><br><span class="line">│   ├── ctr</span><br><span class="line">│   ├── docker</span><br><span class="line">│   ├── dockerd</span><br><span class="line">│   ├── docker-init</span><br><span class="line">│   ├── docker-proxy</span><br><span class="line">│   └── runc</span><br><span class="line">└── docker-20.10.10.tgz</span><br><span class="line"></span><br><span class="line">1 directory, 10 files</span><br><span class="line">[root@centos7 src]<span class="comment"># </span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加环境变量</span></span><br><span class="line">[root@centos7 src]<span class="comment"># ln -s /usr/local/src/docker/* /usr/bin/</span></span><br><span class="line"><span class="comment">#启动dockerd服务</span></span><br><span class="line">[root@centos7 src]<span class="comment">#dockerd &amp;&gt;/dev/null &amp;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 编写service文件</span></span><br><span class="line">[root@centos7 ~]<span class="comment"># cat /lib/systemd/system/docker.service</span></span><br><span class="line"></span><br><span class="line">[Unit]</span><br><span class="line">Description=Docker Application Container Engine</span><br><span class="line">Documentation=https://docs.docker.com</span><br><span class="line">After=network-online.target docker.socket firewalld.service containerd.service time-set.target</span><br><span class="line">Wants=network-online.target containerd.service</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">Type=notify</span><br><span class="line">ExecStart=/usr/bin/dockerd -H unix://var/run/docker.sock</span><br><span class="line">ExecReload=/bin/kill -s HUP <span class="variable">$MAINPID</span></span><br><span class="line">TimeoutStartSec=0</span><br><span class="line">RestartSec=2</span><br><span class="line">Restart=always</span><br><span class="line">StartLimitBurst=3</span><br><span class="line">StartLimitInterval=60s</span><br><span class="line"></span><br><span class="line"><span class="comment"># Having non-zero Limit*s causes performance problems due to accounting overhead</span></span><br><span class="line"><span class="comment"># in the kernel. We recommend using cgroups to do container-local accounting.</span></span><br><span class="line">LimitNOFILE=infinity</span><br><span class="line">LimitNPROC=infinity</span><br><span class="line">LimitCORE=infinity</span><br><span class="line"></span><br><span class="line"><span class="comment"># Comment TasksMax if your systemd version does not support it.</span></span><br><span class="line"><span class="comment"># Only systemd 226 and above support this option.</span></span><br><span class="line">TasksMax=infinity</span><br><span class="line"></span><br><span class="line"><span class="comment"># set delegate yes so that systemd does not reset the cgroups of docker containers</span></span><br><span class="line">Delegate=<span class="built_in">yes</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># kill only the docker process, not all processes in the cgroup</span></span><br><span class="line">KillMode=process</span><br><span class="line">OOMScoreAdjust=-500</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>Docker</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Sre云计算作业</title>
+    <url>/2022/08/08/homework/</url>
+    <content><![CDATA[<p><strong>第二周作业</strong></p>
+<ol>
+<li>运行脚本可以显示出本机的ip地址</li>
+<li>如果ip地址中有3这个数字，那么就打印出当前的系统时间</li>
+<li>如果ip地址中不含3这个数字，就批量建立用户magedu_00, magedu_01, … magedu_100并且所有用户同属于magedu组</li>
+<li>打印出&#x2F;etc&#x2F;passwd这个文件中可以登陆的用户（非&#x2F;usr&#x2F;sbin&#x2F;nologin）</li>
+<li>yum安装nginx服务，并且启动该服务</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/bash</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">--------------------</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">filename:</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">author:袁坤</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">data:2022-08-07</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">--------------------</span></span><br><span class="line"></span><br><span class="line">set -e -u</span><br><span class="line"></span><br><span class="line">IP=`ifconfig -a |grep inet |grep -v inet6 | grep -v 127.0.0.1 | tr -s &quot; &quot; | cut -d &quot; &quot; -f3`</span><br><span class="line"></span><br><span class="line">echo 本机IP地址为:$&#123;IP&#125;</span><br><span class="line"></span><br><span class="line">if echo $&#123;I&#125; | grep &#x27;3&#x27;;then</span><br><span class="line">	echo `date +%Y-%m-%d-%T`</span><br><span class="line">else</span><br><span class="line">	groupadd magedu</span><br><span class="line">	for i in magedu_&#123;0..100&#125;;do</span><br><span class="line">		useradd $&#123;i&#125; -g magedu</span><br><span class="line">	done</span><br><span class="line">fi;</span><br><span class="line"></span><br><span class="line">NOLOGIN=`grep -v &#x27;/usr/sbin/nologin&#x27; /etc/passwd | cut -d &quot;:&quot; -f1`</span><br><span class="line">echo $&#123;NOLOGIN&#125;</span><br><span class="line"></span><br><span class="line">. /etc/os-release</span><br><span class="line">if [ $ID = &quot;rocky&quot; -o $ID = &quot;centos&quot; ];then</span><br><span class="line">	echo os is version $&#123;ID&#125;</span><br><span class="line">	yum -y install nginx &amp;&amp; systemctl start nginx</span><br><span class="line">else [ $ID = &quot;ubuntu&quot; ];</span><br><span class="line">	echo os is version $ID</span><br><span class="line">	apt update &amp;&amp; apt -y install nginx &amp;&amp; systemctl start nginx</span><br><span class="line"></span><br><span class="line">fi;</span><br></pre></td></tr></table></figure>
+]]></content>
+  </entry>
+  <entry>
     <title>看完这篇还敢说你不会git生成ssh密钥</title>
     <url>/2022/07/13/git-ssh/</url>
     <content><![CDATA[<!--more-->
@@ -3435,20 +3567,6 @@ my.cnf文件内容如下<figure class="highlight plaintext"><table><tr><td class
 <li>如图，创建成功</li>
 </ul>
 <p><img src="/../image.assets/1657719024137.png"></p>
-]]></content>
-  </entry>
-  <entry>
-    <title>Sre云计算作业</title>
-    <url>/2022/08/08/homework/</url>
-    <content><![CDATA[<p><strong>第二周作业</strong></p>
-<ol>
-<li>运行脚本可以显示出本机的ip地址</li>
-<li>如果ip地址中有3这个数字，那么就打印出当前的系统时间</li>
-<li>如果ip地址中不含3这个数字，就批量建立用户magedu_00, magedu_01, … magedu_100并且所有用户同属于magedu组</li>
-<li>打印出&#x2F;etc&#x2F;passwd这个文件中可以登陆的用户（非&#x2F;usr&#x2F;sbin&#x2F;nologin）</li>
-<li>yum安装nginx服务，并且启动该服务</li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/bash</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">--------------------</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">filename:</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">author:袁坤</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">data:2022-08-07</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">--------------------</span></span><br><span class="line"></span><br><span class="line">set -e -u</span><br><span class="line"></span><br><span class="line">IP=`ifconfig -a |grep inet |grep -v inet6 | grep -v 127.0.0.1 | tr -s &quot; &quot; | cut -d &quot; &quot; -f3`</span><br><span class="line"></span><br><span class="line">echo 本机IP地址为:$&#123;IP&#125;</span><br><span class="line"></span><br><span class="line">if echo $&#123;I&#125; | grep &#x27;3&#x27;;then</span><br><span class="line">	echo `date +%Y-%m-%d-%T`</span><br><span class="line">else</span><br><span class="line">	groupadd magedu</span><br><span class="line">	for i in magedu_&#123;0..100&#125;;do</span><br><span class="line">		useradd $&#123;i&#125; -g magedu</span><br><span class="line">	done</span><br><span class="line">fi;</span><br><span class="line"></span><br><span class="line">NOLOGIN=`grep -v &#x27;/usr/sbin/nologin&#x27; /etc/passwd | cut -d &quot;:&quot; -f1`</span><br><span class="line">echo $&#123;NOLOGIN&#125;</span><br><span class="line"></span><br><span class="line">. /etc/os-release</span><br><span class="line">if [ $ID = &quot;rocky&quot; -o $ID = &quot;centos&quot; ];then</span><br><span class="line">	echo os is version $&#123;ID&#125;</span><br><span class="line">	yum -y install nginx &amp;&amp; systemctl start nginx</span><br><span class="line">else [ $ID = &quot;ubuntu&quot; ];</span><br><span class="line">	echo os is version $ID</span><br><span class="line">	apt update &amp;&amp; apt -y install nginx &amp;&amp; systemctl start nginx</span><br><span class="line"></span><br><span class="line">fi;</span><br></pre></td></tr></table></figure>
 ]]></content>
   </entry>
   <entry>
@@ -6281,203 +6399,6 @@ my.cnf文件内容如下<figure class="highlight plaintext"><table><tr><td class
       </tags>
   </entry>
   <entry>
-    <title>网络文件共享服务</title>
-    <url>/2022/12/04/%E7%BD%91%E7%BB%9C%E6%96%87%E4%BB%B6%E5%85%B1%E4%BA%AB%E6%9C%8D%E5%8A%A1/</url>
-    <content><![CDATA[<h1 id="NFS服务"><a href="#NFS服务" class="headerlink" title="NFS服务"></a>NFS服务</h1><h2 id="NFS工作原理"><a href="#NFS工作原理" class="headerlink" title="NFS工作原理"></a>NFS工作原理</h2><p><img src="/../image.assets/1670127215657.png" alt="1670127215657"></p>
-<p>NFS：Network File System 网络文件系统，基于内核的文件系统。Sun 公司开发，通过使用 NFS，用户和程序可以像访问本地文件一样访问远端系统上的文件，基于RPC（Remote Procedure CallProtocol 远程过程调用）实现。<br>RPC采用C&#x2F;S模式，客户机请求程序调用进程发送一个有进程参数的调用信息到服务进程，然后等待应答信息。在服务器端，进程保持睡眠状态直到调用信息到达为止。当一个调用信息到达，服务器获得进程参数，计算结果，发送答复信息，然后等待下一个调用信息，最后，客户端调用进程接收答复信息，获得进程结果，然后调用执行继续进行。</p>
-<p><img src="/../image.assets/1670127252975.png" alt="1670127252975"></p>
-<p>NFS优势：节省本地存储空间，将常用的数据,如：&#x2F;home目录，存放在NFS服务器上且可以通过网络访<br>问，本地终端将可减少自身存储空间的使用。</p>
-<h2 id="NFS软件介绍"><a href="#NFS软件介绍" class="headerlink" title="NFS软件介绍"></a>NFS软件介绍</h2><p>软件包：nfs-utils（包括服务器和客户端相关工具，CentOS8 最小化安装时默认没有安装），nfs-common(Ubuntu中包名)<br>相关软件包：rpcbind（必须），tcp_wrappers<br>Kernel支持：nfs.ko<br>端口：2049(nfsd), 其它端口由portmap(111)分配<br>NFS服务主要进程：  </p>
-<ul>
-<li>rpc.nfsd 最主要的NFS进程，管理客户端是否可登录  </li>
-<li>rpc.mountd 挂载和卸载NFS文件系统，包括权限管理  </li>
-<li>rpc.lockd 非必要，管理文件锁，避免同时写出错  </li>
-<li>rpc.statd 非必要，检查文件一致性，可修复文件</li>
-</ul>
-<p>说明：CentOS 6 开始portmap进程由rpcbind代替<br>日志：&#x2F;var&#x2F;lib&#x2F;nfs&#x2F;<br>NFS配置文件</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">/etc/exports</span><br><span class="line">/etc/exports.d/*.exports</span><br></pre></td></tr></table></figure>
-
-<p>常用选项</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">默认选项：(ro,sync,root_squash,no_all_squash)</span><br><span class="line">ro,rw 只读和读写</span><br><span class="line">async 异步，数据变化后不立即写磁盘，先写入到缓冲区中，过一段时间再写入磁盘，性能高,安全性低</span><br><span class="line">sync（1.0.0后为默认）同步，数据在请求时立即写入共享存储磁盘,性能低,安全性高</span><br><span class="line">root_squash （默认）远程root映射为nfsnobody,UID为65534，CentOS8 为nobody,CentOS</span><br><span class="line">7以前的版本为nfsnobody</span><br><span class="line">no_root_squash 远程root映射成NFS服务器的root用户</span><br><span class="line">all_squash 所有远程用户(包括root)都变成nfsnobody,CentOS8 为nobody</span><br><span class="line">no_all_squash （默认）保留共享文件的UID和GID</span><br><span class="line">anonuid和anongid 指明匿名用户映射为特定用户UID和组GID，而非nobody,可配合all_squash使</span><br><span class="line">用</span><br></pre></td></tr></table></figure>
-
-<h2 id="NFS工具"><a href="#NFS工具" class="headerlink" title="NFS工具"></a>NFS工具</h2><h3 id="rpcinfo"><a href="#rpcinfo" class="headerlink" title="rpcinfo"></a>rpcinfo</h3><p>rpcinfo 工具可以查看RPC相关信息<br>查看注册在指定主机的RPC程序</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">rpcinfo -p hostname</span><br></pre></td></tr></table></figure>
-
-<p>查看RPC注册程序</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">rpcinfo -s hostname</span><br></pre></td></tr></table></figure>
-
-<h3 id="exportfs"><a href="#exportfs" class="headerlink" title="exportfs"></a>exportfs</h3><p>exportfs:可用于管理NFS导出的文件系统<br>常见选项</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">-v #查看本机所有NFS共享</span><br><span class="line">-r #重读配置文件，并共享目录</span><br><span class="line">-a #输出本机所有共享</span><br><span class="line">-au #停止本机所有共享</span><br></pre></td></tr></table></figure>
-
-<h3 id="showmount"><a href="#showmount" class="headerlink" title="showmount"></a>showmount</h3><p>常见用法：</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">#查看远程主机的NFS共享</span><br><span class="line">showmount -e hostname</span><br></pre></td></tr></table></figure>
-
-<h3 id="mount-nfs"><a href="#mount-nfs" class="headerlink" title="mount.nfs"></a>mount.nfs</h3><p>客户端NFS挂载<br>NFS相关的挂载选项：man 5 nfs</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">fg #（默认）前台挂载</span><br><span class="line">bg #后台挂载</span><br><span class="line">hard #（默认）持续请求</span><br><span class="line">soft #非持续请求</span><br><span class="line">intr #和hard配合，请求可中断</span><br><span class="line">rsize #和wsize 一次读和写数据最大字节数，rsize=32768</span><br><span class="line">_netdev #无网络服务时不挂载NFS资源</span><br><span class="line">vers #指定版本，客户端centos8默认4.2 ，centos7默认4.1 centos6默认4.0</span><br></pre></td></tr></table></figure>
-
-<p>提示：基于安全考虑，建议使用 nosuid,<em>netdev,noexec 挂载选项</em></p>
-<h1 id="实战案例"><a href="#实战案例" class="headerlink" title="实战案例"></a>实战案例</h1><p><img src="/../image.assets/1670246134779.png" alt="1670246134779"></p>
-<ul>
-<li>NFS服务器安装软件</li>
-</ul>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">yum install -y nfs-utils</span><br><span class="line"></span><br><span class="line"># 启动rpcbind</span><br><span class="line">systemctl start rpcbind</span><br><span class="line"></span><br><span class="line"># 启动nfs-server</span><br><span class="line">systemctl start nfs-server</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>NFS服务器创建共享文件</li>
-</ul>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line"># 共享根目录下的share目录</span><br><span class="line">mkdir /share</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>添加uid和gid为300的用户nfs-upload</li>
-</ul>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">[root@centos7-master ~]# groupadd -g 300 nfs-upload</span><br><span class="line">[root@centos7-master ~]# useradd -u 300 -g 300 nfs-upload</span><br><span class="line">[root@centos7-master ~]# </span><br><span class="line">#修改所属组权限</span><br><span class="line">[root@centos7-master share]# chown -R 300:300 /share</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>修改NFS服务器配置文件</li>
-</ul>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">[root@centos7-master ~]# vim /etc/exports</span><br><span class="line"># 加入如下内容，*表示任何人，rw表示读写</span><br><span class="line">/share/ 192.168.179.*(rw,anongid=300,anonuid=300)</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>重新加载配置</li>
-</ul>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line"># 重新加载配置文件</span><br><span class="line">[root@centos7-master ~]# exportfs -r</span><br><span class="line">[root@centos7-master ~]# exportfs -v</span><br><span class="line">/share        	192.168.179.*(sync,wdelay,hide,no_subtree_check,anonuid=300,anongid=300,sec=sys,rw,secure,root_squash,no_all_squash)</span><br><span class="line">[root@centos7-master ~]# </span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>客户端安装软件</li>
-</ul>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">yum install -y nfs-utils</span><br><span class="line"></span><br><span class="line"># 启动rpcbind</span><br><span class="line">systemctl start rpcbind</span><br><span class="line"></span><br><span class="line"># 启动nfs-server</span><br><span class="line">systemctl start nfs-server</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>添加用户和组</li>
-</ul>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">[root@centos7-slave /]# groupadd -g 300 nfs-upload</span><br><span class="line">[root@centos7-slave /]# useradd -u 300 -g 300 nfs-upload</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>在客户端挂载，挂载&#x2F;nfsshare目录下</li>
-</ul>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line"># 创建目录</span><br><span class="line">mkdir /nfsshare</span><br><span class="line"># 查看服务器端可挂载点</span><br><span class="line">[root@centos7-slave ~]# showmount -e 192.168.179.170</span><br><span class="line">Export list for 192.168.179.170:</span><br><span class="line">/share *</span><br><span class="line">[root@centos7-slave nfsshare]# </span><br><span class="line"></span><br><span class="line"># 挂载方式1，关机重启会失效</span><br><span class="line">[root@centos7-slave ~]# mount 192.168.179.170:/share/ /nfsshare</span><br><span class="line"></span><br><span class="line"># 方式二修改配置文件，关机重启不失效</span><br><span class="line">[root@centos7-slave ~]# vim /etc/fstab </span><br><span class="line"># 加入如下内容</span><br><span class="line">192.168.179.170:/share                    /nfsshare  nfs     defaults,_netdev 0 0</span><br><span class="line"># 使配置文件生效</span><br><span class="line">[root@centos7-slave nfsshare]# mount -a</span><br><span class="line">[root@centos7-slave nfsshare]# </span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>测试</li>
-</ul>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line"># 在客户端上查看/nfsshare的内容</span><br><span class="line">[root@centos7-slave nfsshare]# ll</span><br><span class="line">total 8</span><br><span class="line">-rw-r--r-- 1 nfs-upload nfs-upload  5 Dec  5 23:14 a.xtx</span><br><span class="line">drwxr-xr-x 2 nfs-upload nfs-upload  6 Dec  5 23:17 newfile</span><br><span class="line">-rw-r--r-- 1 nfs-upload nfs-upload 17 Dec  5 23:11 test.log</span><br><span class="line">[root@centos7-slave nfsshare]# </span><br><span class="line"></span><br><span class="line"># 在服务器端查看/share目录</span><br><span class="line">[root@centos7-master share]# ll</span><br><span class="line">total 8</span><br><span class="line">-rw-r--r-- 1 nfs-upload nfs-upload  5 Dec  5 23:14 a.xtx</span><br><span class="line">drwxr-xr-x 2 nfs-upload nfs-upload  6 Dec  5 23:17 newfile</span><br><span class="line">-rw-r--r-- 1 nfs-upload nfs-upload 17 Dec  5 23:11 test.log</span><br><span class="line">[root@centos7-master share]#</span><br></pre></td></tr></table></figure>
-
-<h1 id="数据的实时同步"><a href="#数据的实时同步" class="headerlink" title="数据的实时同步"></a>数据的实时同步</h1><h3 id="实时同步技术介绍"><a href="#实时同步技术介绍" class="headerlink" title="实时同步技术介绍"></a>实时同步技术介绍</h3><p>实现实时同步的方法</p>
-<ul>
-<li>inotify + rsync 方式实现数据同步</li>
-<li>sersync ：前金山公司周洋（花椒直播）在 inotify 软件基础上进行开发的，功能更加强大</li>
-</ul>
-<p>工作原理：</p>
-<ul>
-<li>要利用监控服务（inotify），监控同步数据服务器目录中信息的变化</li>
-<li>发现目录中数据产生变化，就利用rsync服务推送到备份服务器上</li>
-</ul>
-<p>inotify：<br>异步的文件系统事件监控机制，利用事件驱动机制，而无须通过诸如cron等的轮询机制来获取事件，linux内核从2.6.13起支持 inotify，通过inotify可以监控文件系统中添加、删除，修改、移动等各种事件</p>
-<p><strong>实现inotify软件：</strong></p>
-<ul>
-<li>inotify-tools</li>
-<li>sersync</li>
-<li>lrsyncd</li>
-</ul>
-<p><strong>inotify+rsync使用方式</strong></p>
-<ul>
-<li>inotify 对同步数据目录信息的监控</li>
-<li>rsync 完成对数据的同步</li>
-<li>利用脚本进行结合</li>
-</ul>
-<h3 id="实现-inotify"><a href="#实现-inotify" class="headerlink" title="实现 inotify"></a>实现 inotify</h3><p>内核是否支持inotify<br>Linux支持inotify的内核最小版本为 2.6.13，参看man 7 inotify</p>
-<p><strong>inotify 内核参数说明：</strong></p>
-<ul>
-<li>max_queued_events：inotify 事件队列最大长度，如值太小会出现 Event Queue Overflow 错<br>误，默认值：16384, 生产环境建议调大,比如:327679</li>
-<li>max_user_instances：每个用户创建inotify实例最大值，默认值：128</li>
-<li>max_user_watches：可以监视的文件的总数量（inotifywait 单进程），默认值：8192,建议调大</li>
-</ul>
-<h4 id="inotify-tools工具"><a href="#inotify-tools工具" class="headerlink" title="inotify-tools工具"></a>inotify-tools工具</h4><p>inotify-tools参考文档：<a href="https://github.com/rvoicilas/inotify-tools/wiki">https://github.com/rvoicilas/inotify-tools/wiki</a><br>安装inotify-tools：基于epel源</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">yum install epel-release</span><br><span class="line">yum -y install inotify-tools</span><br></pre></td></tr></table></figure>
-
-<p><strong>inotify-tools包主要工具：</strong></p>
-<ul>
-<li>inotifywait： 在被监控的文件或目录上等待特定文件系统事件（open ，close，delete等）发生，<br>常用于实时同步的目录监控</li>
-<li>inotifywatch：收集被监控的文件系统使用的统计数据，指文件系统事件发生的次数统计</li>
-</ul>
-<p>inotifywait 命令<br>格式:</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">inotifywait [ options ] file1 [ file2 ] [ file3 ] [ ... ]</span><br></pre></td></tr></table></figure>
-
-<p>常用选项</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">-m, --monitor 始终保持事件监听</span><br><span class="line">-d, --daemon 以守护进程方式执行，和-m相似，配合-o使用</span><br><span class="line">-r, --recursive 递归监控目录数据信息变化</span><br><span class="line">-q, --quiet 输出少量事件信息</span><br><span class="line">--exclude &lt;pattern&gt; 指定排除文件或目录，使用扩展的正则表达式匹配的模式实现</span><br><span class="line">--excludei &lt;pattern&gt; 和exclude相似，不区分大小写</span><br><span class="line">-o, --outfile &lt;file&gt; 打印事件到文件中，相当于标准正确输出，注意：使用绝对路径</span><br><span class="line">-s, --syslogOutput 发送错误到syslog相当于标准错误输出</span><br><span class="line">--timefmt &lt;fmt&gt; 指定时间输出格式</span><br><span class="line">--format &lt;fmt&gt; 指定的输出格式；即实际监控输出内容</span><br><span class="line">-e</span><br></pre></td></tr></table></figure>
-
-<p><strong>inotifywait 的–timefmt 时间格式</strong><br>参考 man 3 strftime</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">%Y #年份信息，包含世纪信息</span><br><span class="line">%y #年份信息，不包括世纪信息</span><br><span class="line">%m #显示月份，范围 01-12</span><br><span class="line">%d #每月的第几天，范围是 01-31</span><br><span class="line">%H #小时信息，使用 24小时制，范围 00-23</span><br><span class="line">%M #分钟，范围 00-59</span><br><span class="line">%S #秒，范例 0-60</span><br></pre></td></tr></table></figure>
-
-<p>范例：</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">--timefmt &quot;%Y-%m-%d %H:%M:%S&quot;</span><br></pre></td></tr></table></figure>
-
-<p><strong>inotifywait 的 –format 格式定义</strong></p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">%T #输出时间格式中定义的时间格式信息，通过 --timefmt option 语法格式指定时间信息</span><br><span class="line">%w #事件出现时，监控文件或目录的名称信息，相当于dirname</span><br><span class="line">%f #事件出现时，将显示监控目录下触发事件的文件或目录信息，否则为空，相当于basename</span><br><span class="line">%e #显示发生的事件信息，不同的事件默认用逗号分隔</span><br><span class="line">%Xe #显示发生的事件信息，不同的事件指定用X进行分隔</span><br></pre></td></tr></table></figure>
-
-<p>范例</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">--format &quot;%T %w%f event: %;e&quot;</span><br><span class="line">--format &#x27;%T %w %f&#x27;</span><br></pre></td></tr></table></figure>
-
-<p>inotifywait -e 选项指定的事件类型</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">create #文件或目录创建</span><br><span class="line">delete #文件或目录被删除</span><br><span class="line">modify #文件或目录内容被写入</span><br><span class="line">attrib #文件或目录属性改变</span><br><span class="line">close_write #文件或目录关闭，在写入模式打开之后关闭的</span><br><span class="line">close_nowrite #文件或目录关闭，在只读模式打开之后关闭的</span><br><span class="line">close #文件或目录关闭，不管读或是写模式</span><br><span class="line">open #文件或目录被打开</span><br><span class="line">lsdir #浏览目录内容</span><br><span class="line">moved_to #文件或目录被移动到监控的目录中</span><br><span class="line">moved_from #文件或目录从监控的目录中被移动</span><br><span class="line">move #文件或目录不管移动到或是移出监控目录都触发事件</span><br><span class="line">access #文件或目录内容被读取</span><br><span class="line">delete_self #文件或目录被删除，目录本身被删除</span><br><span class="line">unmount #取消挂载</span><br></pre></td></tr></table></figure>
-
-<p>范例</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">-e create,delete,moved_to,close_write,attrib</span><br></pre></td></tr></table></figure>
-
-<p>范例：使用inotifywait</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line"># 监控一次事件</span><br><span class="line">[root@centos7 /]# inotifywait /data/www/</span><br><span class="line">Setting up watches.</span><br><span class="line">Watches established.</span><br><span class="line">/data/www/ CREATE,ISDIR html</span><br><span class="line">[root@centos7 /]# </span><br><span class="line"></span><br><span class="line"># 持续前台监控</span><br><span class="line">[root@centos7 /]# inotifywait -mrq /data/www --exclude=&quot;.*\.swx|\.swp&quot;</span><br><span class="line">/data/www/ OPEN,ISDIR </span><br><span class="line">/data/www/ CLOSE_NOWRITE,CLOSE,ISDIR </span><br><span class="line">/data/www/ CREATE mysql.log</span><br><span class="line">/data/www/ OPEN mysql.log</span><br><span class="line">/data/www/ ATTRIB mysql.log</span><br><span class="line">/data/www/ CLOSE_WRITE,CLOSE mysql.log</span><br><span class="line">/data/www/ OPEN,ISDIR </span><br><span class="line">/data/www/ CLOSE_NOWRITE,CLOSE,ISDIR </span><br><span class="line">/data/www/ MODIFY mysql.log</span><br><span class="line">/data/www/ OPEN mysql.log</span><br><span class="line">/data/www/ MODIFY mysql.log</span><br><span class="line">/data/www/ CLOSE_WRITE,CLOSE mysql.log</span><br><span class="line">/data/www/ OPEN,ISDIR </span><br><span class="line">/data/www/ CLOSE_NOWRITE,CLOSE,ISDIR </span><br><span class="line">/data/www/ OPEN mysql.log</span><br><span class="line">/data/www/ ACCESS mysql.log</span><br><span class="line">/data/www/ CLOSE_NOWRITE,CLOSE mysql.log</span><br><span class="line"></span><br><span class="line">#持续后台监控，并记录日志</span><br><span class="line">inotifywait -o /root/inotify.log -drq /data/www --timefmt &quot;%Y-%m-%d %H:%M:%S&quot; --</span><br><span class="line">format &quot;%T %w%f event: %e&quot;</span><br><span class="line">#持续前台监控特定事件</span><br><span class="line">inotifywait -mrq /data/www --timefmt &quot;%F %H:%M:%S&quot; --format &quot;%T %w%f event:</span><br><span class="line">%;e&quot; -e create,delete,moved_to,close_write,attrib</span><br></pre></td></tr></table></figure>
-
-<h2 id="rsync-服务"><a href="#rsync-服务" class="headerlink" title="rsync 服务"></a>rsync 服务</h2><p>rsync 常用于做为 linux系统下的数据镜像备份工具，实现远程同步，支持本地复制，或者与其他SSH、<br>rsync主机同步数据，支持增量备份，配合任务计划，rsync能实现定时或间隔同步，配合inotify或<br>sersync，可以实现触发式的实时数据同步<br>官方网站: <a href="http://rsync.samba.org/">http://rsync.samba.org/</a></p>
-<p>软件包：rsync，rsync-daemon（CentOS 8）<br>服务文件：&#x2F;usr&#x2F;lib&#x2F;systemd&#x2F;system&#x2F;rsyncd.service<br>配置文件：&#x2F;etc&#x2F;rsyncd.conf<br>端口：873&#x2F;tcp</p>
-<h4 id="rsync命令"><a href="#rsync命令" class="headerlink" title="rsync命令"></a>rsync命令</h4><p>rsync 格式</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">#Local:</span><br><span class="line">rsync [OPTION...] SRC... [DEST]</span><br><span class="line">#Access via remote shell:</span><br><span class="line">Pull:</span><br><span class="line">rsync [OPTION...] [USER@]HOST:SRC... [DEST]</span><br><span class="line">Push:</span><br><span class="line">rsync [OPTION...] SRC... [USER@]HOST:DEST</span><br><span class="line">#Access via rsync daemon:</span><br><span class="line">Pull:</span><br><span class="line">rsync [OPTION...] [USER@]HOST::SRC... [DEST]</span><br><span class="line">rsync [OPTION...] rsync://[USER@]HOST[:PORT]/SRC... [DEST]</span><br><span class="line">Push:</span><br><span class="line">rsync [OPTION...] SRC... [USER@]HOST::DEST</span><br><span class="line">rsync [OPTION...] SRC... rsync://[USER@]HOST[:PORT]/DEST</span><br><span class="line">The &#x27;:&#x27; usages connect via remote shell, while &#x27;::&#x27; &amp; &#x27;rsync://&#x27; usages connect</span><br><span class="line">to an rsync daemon, and require SRC or DEST to start with a module name.</span><br></pre></td></tr></table></figure>
-
-<p>rsync有三种工作方式：</p>
-<ol>
-<li>本地文件系统上实现同步。命令行语法格式为上述”Local”段的格式。</li>
-<li>本地主机使用远程shell和远程主机通信。命令行语法格式为上述”Access via remote shell”段的格<br>式。</li>
-<li>本地主机通过网络套接字连接远程主机上的rsync daemon。命令行语法格式为上述”Access via<br>rsync daemon”段的格式。<br>前两者的本质是通过本地或远程shell，而第3种方式则是让远程主机上运行rsyncd服务，使其监听在一<br>个端口上，等待客户端的连接。<br>常见选项：</li>
-</ol>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">-v：显示rsync过程中详细信息。可以使用&quot;-vvvv&quot;获取更详细信息。</span><br><span class="line">-P：显示文件传输的进度信息。(实际上&quot;-P&quot;=&quot;--partial --progress&quot;，其中的&quot;--progress&quot;才是显</span><br><span class="line">示进度信息的)。</span><br><span class="line">-n --dry-run ：仅测试传输，而不实际传输。常和&quot;-vvvv&quot;配合使用来查看rsync是如何工作的。</span><br><span class="line">-a --archive ：归档模式，表示递归传输并保持文件属性。等同于&quot;-rtopgDl&quot;。</span><br><span class="line">-r --recursive：递归到目录中去。</span><br><span class="line">-t --times：保持mtime属性。强烈建议任何时候都加上&quot;-t&quot;，否则目标文件mtime会设置为系统时间，导</span><br><span class="line">致下次更新</span><br><span class="line">：检查出mtime不同从而导致增量传输无效。</span><br><span class="line">-o --owner：保持owner属性(属主)。</span><br><span class="line">-g --group：保持group属性(属组)。</span><br><span class="line">-p --perms：保持perms属性(权限，不包括特殊权限)</span><br><span class="line">-D ：是&quot;--device --specials&quot;选项的组合，即也拷贝设备文件和特殊文件。</span><br><span class="line">-l --links：如果文件是软链接文件，则拷贝软链接本身而非软链接所指向的对象</span><br><span class="line">-z ：传输时进行压缩提高效率</span><br><span class="line">-R --relative：使用相对路径。意味着将命令行中指定的全路径而非路径最尾部的文件名发送给服务端，</span><br><span class="line">包括它们的属性。用法见下文示例。</span><br><span class="line">--size-only ：默认算法是检查文件大小和mtime不同的文件，使用此选项将只检查文件大小。</span><br><span class="line">-u --update ：仅在源mtime比目标已存在文件的mtime新时才拷贝。注意，该选项是接收端判断的，不会</span><br><span class="line">影响删除行为。</span><br><span class="line">-d --dirs ：以不递归的方式拷贝目录本身。默认递归时，如果源为&quot;dir1/file1&quot;，则不会拷贝dir1</span><br><span class="line">目录，使用该选项将拷贝dir1但不拷贝file1。</span><br><span class="line">--max-size ：限制rsync传输的最大文件大小。可以使用单位后缀，还可以是一个小数值(例如：&quot;--</span><br><span class="line">max-size=1.5m&quot;)</span><br><span class="line">--min-size ：限制rsync传输的最小文件大小。这可以用于禁止传输小文件或那些垃圾文件。</span><br><span class="line">--exclude ：指定排除规则来排除不需要传输的文件。</span><br><span class="line">--delete ：以SRC为主，对DEST进行同步。多则删之，少则补之。注意&quot;--delete&quot;是在接收端执行</span><br><span class="line">的，所以它是在</span><br><span class="line">：exclude/include规则生效之后才执行的。</span><br><span class="line">-b --backup ：对目标上已存在的文件做一个备份，备份的文件名后默认使用&quot;~&quot;做后缀。</span><br><span class="line">--backup-dir：指定备份文件的保存路径。不指定时默认和待备份文件保存在同一目录下。</span><br><span class="line">-e ：指定所要使用的远程shell程序，默认为ssh。</span><br><span class="line">--port ：连接daemon时使用的端口号，默认为873端口。</span><br><span class="line">--password-file：daemon模式时的密码文件，可以从中读取密码实现非交互式。注意，这不是远程shell</span><br><span class="line">认证的密码，而是rsync模块认证的密码。</span><br><span class="line">-W --whole-file：rsync将不再使用增量传输，而是全量传输。在网络带宽高于磁盘带宽时，该选项比增</span><br><span class="line">量传输更高效。</span><br><span class="line">--existing ：要求只更新目标端已存在的文件，目标端还不存在的文件不传输。注意，使用相对路径时如</span><br><span class="line">果上层目录不存在也不会传输。</span><br><span class="line">--ignore-existing：要求只更新目标端不存在的文件。和&quot;--existing&quot;结合使用有特殊功能，见下文示</span><br><span class="line">例。</span><br><span class="line">--remove-source-files：要求删除源端已经成功传输的文件</span><br></pre></td></tr></table></figure>
-
-<p> 范例：两种格式访问 rsync daemon 服务 </p>
-<p><img src="/../image.assets/1670396738139.png" alt="1670396738139"></p>
-<ul>
-<li>环境</li>
-</ul>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">data-server:192.168.179.171(数据服务器)</span><br><span class="line">backup-server:192.168.179.165(备份服务器)</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">#在备份服务器启动 rsync 进程</span><br><span class="line">[root@centos8-backup ~]#rsync --daemon</span><br><span class="line">Failed to parse config file: /etc/rsyncd.conf</span><br><span class="line">[root@centos8-backup ~]#touch /etc/rsyncd.conf</span><br><span class="line">[root@centos8-backup ~]#rsync --daemon</span><br><span class="line">[root@centos8-backup /]# cat /etc/rsyncd.conf </span><br><span class="line">[backup]</span><br><span class="line">path = /web/www/</span><br><span class="line">read only = no </span><br><span class="line">[root@centos8-backup /]# </span><br><span class="line">#指定目录给nobody权限，默认用户以nobody访问此目录</span><br><span class="line">[root@centos8-backup ~]#setfacl -m u:nobody:rwx /data/backup/</span><br><span class="line">#查看rsync服务器的模块名称</span><br><span class="line">[root@centos7-slave /]# rsync rsync://192.168.179.165</span><br><span class="line">backup    	</span><br><span class="line">[root@centos7-slave /]# </span><br><span class="line">[root@centos7-slave /]# rsync 192.168.179.165::</span><br><span class="line">backup</span><br><span class="line"></span><br><span class="line">#访问rsync服务器的共享目录</span><br><span class="line">#推</span><br><span class="line">[root@centos7-slave /]# rsync /xy.log 192.168.179.165::backup</span><br><span class="line">[root@centos7-slave /]# rsync /etc/shells rsync://root@192.168.179.165/backup</span><br><span class="line"></span><br><span class="line">[root@centos7-slave /]#rsync 192.168.179.165::backup/* /opt</span><br><span class="line">[root@centos7-slave /]#rsync rsync://192.168.179.165/backup/* /mnt</span><br></pre></td></tr></table></figure>
-
-<p>范例：以独立服务方式运行 rsync</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line"># 修改配置文件</span><br><span class="line">[root@centos8-backup etc]# cat rsyncd.conf</span><br><span class="line">#uid = root #提定以哪个用户来访问共享目录，将之指定为生成的文件所有者，默认为nobody</span><br><span class="line">#gid = root #默认为nobody,Ubuntu中为nogroup</span><br><span class="line">#port = 874 可指定非标准端口,默认873/tcp</span><br><span class="line">#use chroot = no</span><br><span class="line">#max connections = 0</span><br><span class="line">#ignore errors</span><br><span class="line">#exclude = lost+found/</span><br><span class="line">#log file = /var/log/rsyncd.log</span><br><span class="line">#pid file = /var/run/rsyncd.pid</span><br><span class="line">#lock file = /var/run/rsyncd.lock</span><br><span class="line">#reverse lookup = no</span><br><span class="line">#hosts allow = 10.0.0.0/24</span><br><span class="line">#[backup] #每个模块名对应一个不同的path目录，如果同名后面模块生效</span><br><span class="line">#path = /data/backup/</span><br><span class="line">#comment = backup dir</span><br><span class="line">#read only = no #默认是yes,即只读</span><br><span class="line">#auth users = rsyncuser #默认anonymous可以访问rsync服务器</span><br><span class="line">#secrets file = /etc/rsync.pas</span><br><span class="line"># /etc/rsyncd: configuration file for rsync daemon mode</span><br><span class="line"></span><br><span class="line"># See rsyncd.conf man page for more options.</span><br><span class="line"></span><br><span class="line"># configuration example:</span><br><span class="line"></span><br><span class="line"># uid = nobody</span><br><span class="line"># gid = nobody</span><br><span class="line"># use chroot = yes</span><br><span class="line"># max connections = 4</span><br><span class="line"># pid file = /var/run/rsyncd.pid</span><br><span class="line"># exclude = lost+found/</span><br><span class="line"># transfer logging = yes</span><br><span class="line"># timeout = 900</span><br><span class="line"># ignore nonreadable = yes</span><br><span class="line"># dont compress   = *.gz *.tgz *.zip *.z *.Z *.rpm *.deb *.bz2</span><br><span class="line"></span><br><span class="line"># [ftp]</span><br><span class="line">#        path = /home/ftp</span><br><span class="line">#        comment = ftp export area</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">uid = root </span><br><span class="line">gid = root  </span><br><span class="line">max connections = 0</span><br><span class="line">ignore errors</span><br><span class="line">exclude = lost+found/</span><br><span class="line">log file = /var/log/rsyncd.log</span><br><span class="line">pid file = /var/run/rsyncd.pid</span><br><span class="line">lock file = /var/run/rsyncd.lock</span><br><span class="line">reverse lookup = no</span><br><span class="line"></span><br><span class="line">[backup] </span><br><span class="line">path = /web/backup/  </span><br><span class="line">comment = backup dir</span><br><span class="line">read only = no </span><br><span class="line">auth users = rsyncuser  </span><br><span class="line">secrets file = /etc/rsync.pas</span><br><span class="line"></span><br><span class="line">[root@centos8-backup etc]# </span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#服务器端生成验证文件</span><br><span class="line">[root@centos8-backup ~]#echo &quot;rsyncuser:123456&quot; &gt; /etc/rsync.pas</span><br><span class="line">[root@centos8-backup ~]#chmod 600 /etc/rsync.pas</span><br><span class="line"></span><br><span class="line">#服务器端启动rsync服务</span><br><span class="line">[root@centos8-backup ~]#rsync --daemon #可加入/etc/rc.d/rc.local实现开</span><br><span class="line">机启动</span><br><span class="line"></span><br><span class="line">#客户端配置密码文件</span><br><span class="line">#也可将密码赋值给环境变量RSYNC_PASSWORD变量,但不安全</span><br><span class="line">#export RSYNC_PASSWORD=123456</span><br><span class="line">[root@centos7-slave ~]#echo &quot;123456&quot; &gt; /etc/rsync.pas</span><br><span class="line">[root@centos7-slave ~]#chmod 600 /etc/rsync.pas #此为必要项,权限必须修改</span><br><span class="line"></span><br><span class="line">#查看远程rsync服务器的模块信息</span><br><span class="line">[root@centos7-slave etc]# rsync rsync://192.168.179.165</span><br><span class="line">backup         	backup dir</span><br><span class="line">[root@centos7-slave etc]# </span><br><span class="line"></span><br><span class="line">#交互式验证查看具体模块内的文件</span><br><span class="line">[root@centos7-slave etc]# rsync rsync://rsyncuser@192.168.179.165/backup</span><br><span class="line">Password: </span><br><span class="line"></span><br><span class="line">#非交互式查看共享目录</span><br><span class="line">[root@centos7-slave etc]# rsync --password-file=/etc/rsync.pas rsync://rsyncuser@192.168.179.165/backup</span><br><span class="line">drwxrwxrwx             34 2022/12/07 16:20:07 .</span><br><span class="line">-rw-r--r--              0 2022/12/07 16:20:07 xy.log</span><br><span class="line">-rw-r--r--              0 2022/12/07 16:09:50 zz.log</span><br><span class="line">[root@centos7-slave etc]# </span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#客户端测试同步数据</span><br><span class="line">[root@data-centos8 ~]#rsync -avz --delete --password-file=/etc/rsync.pas /data/www/ rsyncuser@rsync服务器IP::backup</span><br><span class="line">[root@data-centos8 ~]#rsync -avz --delete --password-file=/etc/rsync.pas rsyncuser@rsync服务器IP::backup /data/www/</span><br></pre></td></tr></table></figure>
-
-<h3 id="inotify-rsync-shell-脚本实现实时数据同步"><a href="#inotify-rsync-shell-脚本实现实时数据同步" class="headerlink" title="inotify+rsync+shell 脚本实现实时数据同步"></a>inotify+rsync+shell 脚本实现实时数据同步</h3><p><img src="/../image.assets/1670403695085.png" alt="1670403695085"></p>
-<p>按 5.3 搭建好 rsyncd的备份服务器，在数据服务器上创建inotify_rsync.sh脚本<br>注意: 此脚本执行前先确保两主机初始数据处于同步状态,此脚本实现后续的数据同步</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">[root@centos7-slave ~]# vim inotify_rsync.sh </span><br><span class="line">#!/bin/bash</span><br><span class="line">SRC=&#x27;/data/www/&#x27; #注意最后的/</span><br><span class="line">DEST=&#x27;rsyncuser@rsync服务器IP::backup&#x27;</span><br><span class="line">rpm -q inotify-tools &amp;&gt; /dev/null ||yum -y install inotify-tools</span><br><span class="line">rpm -q rsync &amp;&gt; /dev/null || yum -y install rsync</span><br><span class="line">inotifywait -mrq --exclude=&quot;.*\.swp&quot; --timefmt &#x27;%Y-%m-%d %H:%M:%S&#x27; --format</span><br><span class="line">&#x27;%T %w %f&#x27; -e create,delete,moved_to,close_write,attrib $&#123;SRC&#125; |while read DATE</span><br><span class="line">TIME DIR FILE;do</span><br><span class="line">FILEPATH=$&#123;DIR&#125;$&#123;FILE&#125;</span><br><span class="line">rsync -az --delete --password-file=/etc/rsync.pas $SRC $DEST &amp;&amp; echo</span><br><span class="line">&quot;At $&#123;TIME&#125; on $&#123;DATE&#125;, file $FILEPATH was backuped up via rsync&quot; &gt;&gt;</span><br><span class="line">/var/log/changelist.log</span><br><span class="line">done</span><br><span class="line">#查看文件传输日志</span><br><span class="line">[root@centos7-slave www]# tail -f /var/log/changelist.log </span><br></pre></td></tr></table></figure>
-
-<h2 id="sersync-实现实时数据同步"><a href="#sersync-实现实时数据同步" class="headerlink" title="sersync 实现实时数据同步"></a>sersync 实现实时数据同步</h2><h3 id="sersync-介绍"><a href="#sersync-介绍" class="headerlink" title="sersync 介绍"></a>sersync 介绍</h3><p>sersync类似于inotify，同样用于监控，但它克服了inotify的缺点.<br>inotify最大的不足是会产生重复事件，或者同一个目录下多个文件的操作会产生多个事件，例如，当监<br>控目录中有5个文件时，删除目录时会产生6个监控事件，从而导致重复调用rsync命令。另外比如：vim<br>文件时，inotify会监控到临时文件的事件，但这些事件相对于rsync来说是不应该被监控的</p>
-<p><strong>sersync 优点：</strong></p>
-<ul>
-<li>sersync是使用c++编写，而且对linux系统文件系统产生的临时文件和重复的文件操作进行过滤，<br>所以在结合rsync同步的时候，节省了运行时耗和网络资源。因此更快。</li>
-<li>sersync配置很简单，其中提供了静态编译好的二进制文件和xml配置文件，直接使用即可</li>
-<li>sersync使用多线程进行同步，尤其在同步较大文件时，能够保证多个服务器实时保持同步状态</li>
-<li>sersync有出错处理机制，通过失败队列对出错的文件重新同步，如果仍旧失败，则按设定时长对<br>同步失败的文件重新同步</li>
-<li>sersync不仅可以实现实时同步，另外还自带crontab功能，只需在xml配置文件中开启，即也可以<br>按要求隔一段时间整体同步一次，而无需再额外配置crontab功能</li>
-<li>sersync 可以二次开发</li>
-</ul>
-<p>sersync项目地址： <a href="https://code.google.com/archive/p/sersync/">https://code.google.com/archive/p/sersync/</a><br>sersync下载地址： <a href="https://code.google.com/archive/p/sersync/downloads">https://code.google.com/archive/p/sersync/downloads</a></p>
-<h3 id="基于rsync-daemon-实现-sersync"><a href="#基于rsync-daemon-实现-sersync" class="headerlink" title="基于rsync daemon 实现 sersync"></a>基于rsync daemon 实现 sersync</h3><figure class="highlight text"><table><tr><td class="code"><pre><span class="line"># #在数据服务器上下载sersync，并拷贝至相应的目录，设置PATH变量</span><br><span class="line">wget https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/sersync/sersync2.5.4_64bit_binary_stable_final.tar.gz</span><br><span class="line"></span><br><span class="line">[root@centos7-slave ~]# tar -vxf sersync2.5.4_64bit_binary_stable_final.tar.gz </span><br><span class="line">[root@centos7-slave ~]# cp -r GNU-Linux-x86/ /usr/local/sersync</span><br><span class="line">[root@centos7-slave sersync]# echo &#x27;PATH=/usr/local/sersync:$PATH&#x27; &gt; /etc/profile.d/sersync.sh</span><br><span class="line">[root@centos7-slave sersync]# source /etc/profile.d/sersync.sh</span><br><span class="line">[root@centos7-slave sersync]# </span><br><span class="line"></span><br><span class="line">#确认安装rsync客户端工具</span><br><span class="line">rpm -q rsync &amp;&gt; /dev/null || dnf -y install rsync</span><br><span class="line"></span><br><span class="line">#备份sersync配置文件</span><br><span class="line">cp /usr/local/sersync/confxml.xml&#123;,.bak&#125;</span><br><span class="line"># 修改配置文件</span><br><span class="line">vim /usr/local/sersync/confxml.xml</span><br><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;ISO-8859-1&quot;?&gt;</span><br><span class="line">&lt;head version=&quot;2.5&quot;&gt;</span><br><span class="line">&lt;host hostip=&quot;localhost&quot; port=&quot;8008&quot;&gt;&lt;/host&gt;</span><br><span class="line">&lt;debug start=&quot;false&quot;/&gt; # 是否开启调试模式</span><br><span class="line">&lt;fileSystem xfs=&quot;false&quot;/&gt;</span><br><span class="line">&lt;filter start=&quot;false&quot;&gt; #不开启文件过滤功能，当为true时,以下类型的文件将不同</span><br><span class="line">步</span><br><span class="line">&lt;exclude expression=&quot;(.*)\.svn&quot;&gt;&lt;/exclude&gt;</span><br><span class="line">&lt;exclude expression=&quot;(.*)\.gz&quot;&gt;&lt;/exclude&gt;</span><br><span class="line">&lt;exclude expression=&quot;^info/*&quot;&gt;&lt;/exclude&gt;</span><br><span class="line">&lt;exclude expression=&quot;^static/*&quot;&gt;&lt;/exclude&gt;</span><br><span class="line">&lt;/filter&gt;</span><br><span class="line">&lt;inotify&gt; # 监控事件，默认监控</span><br><span class="line">delete/close_write/moved_from/moved_to/create folder</span><br><span class="line">&lt;delete start=&quot;true&quot;/&gt;</span><br><span class="line">&lt;createFolder start=&quot;true&quot;/&gt;</span><br><span class="line">&lt;createFile start=&quot;false&quot;/&gt;</span><br><span class="line">&lt;closeWrite start=&quot;true&quot;/&gt;</span><br><span class="line">&lt;moveFrom start=&quot;true&quot;/&gt;</span><br><span class="line">&lt;moveTo start=&quot;true&quot;/&gt;</span><br><span class="line">&lt;attrib start=&quot;true&quot;/&gt; #修改此行为true，文件属性变化后也会同步</span><br><span class="line">&lt;modify start=&quot;false&quot;/&gt;</span><br><span class="line">&lt;/inotify&gt;</span><br><span class="line">&lt;sersync&gt; # rsync命令的配置段</span><br><span class="line">&lt;localpath watch=&quot;/data/www&quot;&gt; #修改此行,需要同步的源目录或文件，建议同步目</span><br><span class="line">录</span><br><span class="line">&lt;remote ip=&quot;备份服务器IP&quot; name=&quot;backup&quot;/&gt; #修改此行,指定备份服务器地址和rsync</span><br><span class="line">daemon的模块名，如果下面开启了ssh start，此时name为远程shell方式运行时的目标目录</span><br><span class="line">&lt;!--&lt;remote ip=&quot;192.168.8.39&quot; name=&quot;tongbu&quot;/&gt;--&gt;</span><br><span class="line">&lt;!--&lt;remote ip=&quot;192.168.8.40&quot; name=&quot;tongbu&quot;/&gt;--&gt;</span><br><span class="line">&lt;/localpath&gt;</span><br><span class="line">&lt;rsync&gt;</span><br><span class="line">&lt;commonParams params=&quot;-artuz&quot;/&gt; # 指定rsync选项</span><br><span class="line">&lt;auth start=&quot;true&quot; users=&quot;rsyncuser&quot; passwordfile=&quot;/etc/rsync.pas&quot;/&gt; #修</span><br><span class="line">改此行为true,指定备份服务器的rsync配置的用户和密码文件</span><br><span class="line">&lt;userDefinedPort start=&quot;false&quot; port=&quot;874&quot;/&gt;&lt;!-- port=874 --&gt;#指定rsync的非</span><br><span class="line">标准端口号</span><br><span class="line">&lt;timeout start=&quot;false&quot; time=&quot;100&quot;/&gt;&lt;!-- timeout=100 --&gt;</span><br><span class="line">&lt;ssh start=&quot;false&quot;/&gt; #默认使用rsync daemon运行rsync命令,true为使用远程shell模</span><br><span class="line">式</span><br><span class="line">&lt;/rsync&gt;</span><br><span class="line">&lt;failLog path=&quot;/tmp/rsync_fail_log.sh&quot; timeToExecute=&quot;60&quot;/&gt;&lt;!--default every</span><br><span class="line">60mins execute once--&gt; #错误重传及日志文件路径</span><br><span class="line">&lt;crontab start=&quot;false&quot; schedule=&quot;600&quot;&gt;&lt;!--600mins--&gt; #不开启crontab功能</span><br><span class="line">&lt;crontabfilter start=&quot;false&quot;&gt; #不开启crontab定时传输的筛选功能</span><br><span class="line">&lt;exclude expression=&quot;*.php&quot;&gt;&lt;/exclude&gt;</span><br><span class="line">&lt;exclude expression=&quot;info/*&quot;&gt;&lt;/exclude&gt;</span><br><span class="line">&lt;/crontabfilter&gt;</span><br><span class="line">&lt;/crontab&gt;</span><br><span class="line">&lt;plugin start=&quot;false&quot; name=&quot;command&quot;/&gt;</span><br><span class="line">&lt;/sersync&gt;</span><br><span class="line">#####################################以下行不需要修改</span><br><span class="line">####################################</span><br><span class="line">&lt;plugin name=&quot;command&quot;&gt;</span><br><span class="line">&lt;param prefix=&quot;/bin/sh&quot; suffix=&quot;&quot; ignoreError=&quot;true&quot;/&gt; &lt;!--prefix</span><br><span class="line">/opt/tongbu/mmm.sh suffix--&gt;</span><br><span class="line">&lt;filter start=&quot;false&quot;&gt;</span><br><span class="line">&lt;include expression=&quot;(.*)\.php&quot;/&gt;</span><br><span class="line">&lt;include expression=&quot;(.*)\.sh&quot;/&gt;</span><br><span class="line">&lt;/filter&gt;</span><br><span class="line">&lt;/plugin&gt;</span><br><span class="line">&lt;plugin name=&quot;socket&quot;&gt;</span><br><span class="line">&lt;localpath watch=&quot;/opt/tongbu&quot;&gt;</span><br><span class="line">&lt;deshost ip=&quot;192.168.138.20&quot; port=&quot;8009&quot;/&gt;</span><br><span class="line">&lt;/localpath&gt;</span><br><span class="line">&lt;/plugin&gt;</span><br><span class="line">&lt;plugin name=&quot;refreshCDN&quot;&gt;</span><br><span class="line">&lt;localpath watch=&quot;/data0/htdocs/cms.xoyo.com/site/&quot;&gt;</span><br><span class="line">&lt;cdninfo domainname=&quot;ccms.chinacache.com&quot; port=&quot;80&quot; username=&quot;xxxx&quot;</span><br><span class="line">passwd=&quot;xxxx&quot;/&gt;</span><br><span class="line">&lt;sendurl base=&quot;http://pic.xoyo.com/cms&quot;/&gt;</span><br><span class="line"> &lt;regexurl regex=&quot;false&quot; match=&quot;cms.xoyo.com/site([/a-zA-Z0-</span><br><span class="line">9]*).xoyo.com/images&quot;/&gt;</span><br><span class="line">&lt;/localpath&gt;</span><br><span class="line">&lt;/plugin&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#创建连接rsynd服务器的用户密码文件,并必须修改权限</span><br><span class="line">echo 123456 &gt; /etc/rsync.pas</span><br><span class="line">chmod 600 /etc/rsync.pas</span><br><span class="line">#查看帮助</span><br><span class="line">sersync2 -h</span><br><span class="line">set the system param</span><br><span class="line">execute：echo 50000000 &gt; /proc/sys/fs/inotify/max_user_watches</span><br><span class="line">execute：echo 327679 &gt; /proc/sys/fs/inotify/max_queued_events</span><br><span class="line">parse the command param</span><br><span class="line"></span><br><span class="line">_______________________________________________________</span><br><span class="line">参数-d:启用守护进程模式</span><br><span class="line">参数-r:在监控前，将监控目录与远程主机用rsync命令推送一遍</span><br><span class="line">c参数-n: 指定开启守护线程的数量，默认为10个</span><br><span class="line">参数-o:指定配置文件，默认使用当前工作目录下的confxml.xml文件</span><br><span class="line">参数-m:单独启用其他模块，使用 -m refreshCDN 开启刷新CDN模块</span><br><span class="line">参数-m:单独启用其他模块，使用 -m socket 开启socket模块</span><br><span class="line">参数-m:单独启用其他模块，使用 -m http 开启http模块</span><br><span class="line">不加-m参数，则默认执行同步程序</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#以后台方式执行同步</span><br><span class="line">sersync2 -dro /usr/local/sersync/confxml.xml</span><br><span class="line"></span><br><span class="line">#如果同步失败,可以手动执行下面命令,观察过程</span><br><span class="line">cd /data/www &amp;&amp; rsync -artuz -R --delete ./ rsyncuser@backup-server::backup --password-file=/etc/rsync.pas &gt;/dev/null 2&gt;&amp;1</span><br><span class="line"></span><br><span class="line">#sersync支持多实例，也即监控多个目录时，只需分别配置不同配置文件，然后使用sersync2指定对应配置文件运行</span><br><span class="line">sersync2 -rd -o /etc/sersync.d/nginx.xml</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>Linux基础</category>
-      </categories>
-      <tags>
-        <tag>Linux从入门到放弃</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>软件测试面试题</title>
     <url>/2022/08/01/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E9%9D%A2%E8%AF%95%E9%A2%98/</url>
     <content><![CDATA[<h1 id="1、软件测试流程"><a href="#1、软件测试流程" class="headerlink" title="1、软件测试流程"></a>1、软件测试流程</h1><ul>
@@ -6744,6 +6665,203 @@ my.cnf文件内容如下<figure class="highlight plaintext"><table><tr><td class
       </categories>
       <tags>
         <tag>软件测试工程师面试基础</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>网络文件共享服务</title>
+    <url>/2022/12/04/%E7%BD%91%E7%BB%9C%E6%96%87%E4%BB%B6%E5%85%B1%E4%BA%AB%E6%9C%8D%E5%8A%A1/</url>
+    <content><![CDATA[<h1 id="NFS服务"><a href="#NFS服务" class="headerlink" title="NFS服务"></a>NFS服务</h1><h2 id="NFS工作原理"><a href="#NFS工作原理" class="headerlink" title="NFS工作原理"></a>NFS工作原理</h2><p><img src="/../image.assets/1670127215657.png" alt="1670127215657"></p>
+<p>NFS：Network File System 网络文件系统，基于内核的文件系统。Sun 公司开发，通过使用 NFS，用户和程序可以像访问本地文件一样访问远端系统上的文件，基于RPC（Remote Procedure CallProtocol 远程过程调用）实现。<br>RPC采用C&#x2F;S模式，客户机请求程序调用进程发送一个有进程参数的调用信息到服务进程，然后等待应答信息。在服务器端，进程保持睡眠状态直到调用信息到达为止。当一个调用信息到达，服务器获得进程参数，计算结果，发送答复信息，然后等待下一个调用信息，最后，客户端调用进程接收答复信息，获得进程结果，然后调用执行继续进行。</p>
+<p><img src="/../image.assets/1670127252975.png" alt="1670127252975"></p>
+<p>NFS优势：节省本地存储空间，将常用的数据,如：&#x2F;home目录，存放在NFS服务器上且可以通过网络访<br>问，本地终端将可减少自身存储空间的使用。</p>
+<h2 id="NFS软件介绍"><a href="#NFS软件介绍" class="headerlink" title="NFS软件介绍"></a>NFS软件介绍</h2><p>软件包：nfs-utils（包括服务器和客户端相关工具，CentOS8 最小化安装时默认没有安装），nfs-common(Ubuntu中包名)<br>相关软件包：rpcbind（必须），tcp_wrappers<br>Kernel支持：nfs.ko<br>端口：2049(nfsd), 其它端口由portmap(111)分配<br>NFS服务主要进程：  </p>
+<ul>
+<li>rpc.nfsd 最主要的NFS进程，管理客户端是否可登录  </li>
+<li>rpc.mountd 挂载和卸载NFS文件系统，包括权限管理  </li>
+<li>rpc.lockd 非必要，管理文件锁，避免同时写出错  </li>
+<li>rpc.statd 非必要，检查文件一致性，可修复文件</li>
+</ul>
+<p>说明：CentOS 6 开始portmap进程由rpcbind代替<br>日志：&#x2F;var&#x2F;lib&#x2F;nfs&#x2F;<br>NFS配置文件</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">/etc/exports</span><br><span class="line">/etc/exports.d/*.exports</span><br></pre></td></tr></table></figure>
+
+<p>常用选项</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">默认选项：(ro,sync,root_squash,no_all_squash)</span><br><span class="line">ro,rw 只读和读写</span><br><span class="line">async 异步，数据变化后不立即写磁盘，先写入到缓冲区中，过一段时间再写入磁盘，性能高,安全性低</span><br><span class="line">sync（1.0.0后为默认）同步，数据在请求时立即写入共享存储磁盘,性能低,安全性高</span><br><span class="line">root_squash （默认）远程root映射为nfsnobody,UID为65534，CentOS8 为nobody,CentOS</span><br><span class="line">7以前的版本为nfsnobody</span><br><span class="line">no_root_squash 远程root映射成NFS服务器的root用户</span><br><span class="line">all_squash 所有远程用户(包括root)都变成nfsnobody,CentOS8 为nobody</span><br><span class="line">no_all_squash （默认）保留共享文件的UID和GID</span><br><span class="line">anonuid和anongid 指明匿名用户映射为特定用户UID和组GID，而非nobody,可配合all_squash使</span><br><span class="line">用</span><br></pre></td></tr></table></figure>
+
+<h2 id="NFS工具"><a href="#NFS工具" class="headerlink" title="NFS工具"></a>NFS工具</h2><h3 id="rpcinfo"><a href="#rpcinfo" class="headerlink" title="rpcinfo"></a>rpcinfo</h3><p>rpcinfo 工具可以查看RPC相关信息<br>查看注册在指定主机的RPC程序</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">rpcinfo -p hostname</span><br></pre></td></tr></table></figure>
+
+<p>查看RPC注册程序</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">rpcinfo -s hostname</span><br></pre></td></tr></table></figure>
+
+<h3 id="exportfs"><a href="#exportfs" class="headerlink" title="exportfs"></a>exportfs</h3><p>exportfs:可用于管理NFS导出的文件系统<br>常见选项</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">-v #查看本机所有NFS共享</span><br><span class="line">-r #重读配置文件，并共享目录</span><br><span class="line">-a #输出本机所有共享</span><br><span class="line">-au #停止本机所有共享</span><br></pre></td></tr></table></figure>
+
+<h3 id="showmount"><a href="#showmount" class="headerlink" title="showmount"></a>showmount</h3><p>常见用法：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">#查看远程主机的NFS共享</span><br><span class="line">showmount -e hostname</span><br></pre></td></tr></table></figure>
+
+<h3 id="mount-nfs"><a href="#mount-nfs" class="headerlink" title="mount.nfs"></a>mount.nfs</h3><p>客户端NFS挂载<br>NFS相关的挂载选项：man 5 nfs</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">fg #（默认）前台挂载</span><br><span class="line">bg #后台挂载</span><br><span class="line">hard #（默认）持续请求</span><br><span class="line">soft #非持续请求</span><br><span class="line">intr #和hard配合，请求可中断</span><br><span class="line">rsize #和wsize 一次读和写数据最大字节数，rsize=32768</span><br><span class="line">_netdev #无网络服务时不挂载NFS资源</span><br><span class="line">vers #指定版本，客户端centos8默认4.2 ，centos7默认4.1 centos6默认4.0</span><br></pre></td></tr></table></figure>
+
+<p>提示：基于安全考虑，建议使用 nosuid,<em>netdev,noexec 挂载选项</em></p>
+<h1 id="实战案例"><a href="#实战案例" class="headerlink" title="实战案例"></a>实战案例</h1><p><img src="/../image.assets/1670246134779.png" alt="1670246134779"></p>
+<ul>
+<li>NFS服务器安装软件</li>
+</ul>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">yum install -y nfs-utils</span><br><span class="line"></span><br><span class="line"># 启动rpcbind</span><br><span class="line">systemctl start rpcbind</span><br><span class="line"></span><br><span class="line"># 启动nfs-server</span><br><span class="line">systemctl start nfs-server</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>NFS服务器创建共享文件</li>
+</ul>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line"># 共享根目录下的share目录</span><br><span class="line">mkdir /share</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>添加uid和gid为300的用户nfs-upload</li>
+</ul>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">[root@centos7-master ~]# groupadd -g 300 nfs-upload</span><br><span class="line">[root@centos7-master ~]# useradd -u 300 -g 300 nfs-upload</span><br><span class="line">[root@centos7-master ~]# </span><br><span class="line">#修改所属组权限</span><br><span class="line">[root@centos7-master share]# chown -R 300:300 /share</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>修改NFS服务器配置文件</li>
+</ul>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">[root@centos7-master ~]# vim /etc/exports</span><br><span class="line"># 加入如下内容，*表示任何人，rw表示读写</span><br><span class="line">/share/ 192.168.179.*(rw,anongid=300,anonuid=300)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>重新加载配置</li>
+</ul>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line"># 重新加载配置文件</span><br><span class="line">[root@centos7-master ~]# exportfs -r</span><br><span class="line">[root@centos7-master ~]# exportfs -v</span><br><span class="line">/share        	192.168.179.*(sync,wdelay,hide,no_subtree_check,anonuid=300,anongid=300,sec=sys,rw,secure,root_squash,no_all_squash)</span><br><span class="line">[root@centos7-master ~]# </span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>客户端安装软件</li>
+</ul>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">yum install -y nfs-utils</span><br><span class="line"></span><br><span class="line"># 启动rpcbind</span><br><span class="line">systemctl start rpcbind</span><br><span class="line"></span><br><span class="line"># 启动nfs-server</span><br><span class="line">systemctl start nfs-server</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>添加用户和组</li>
+</ul>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">[root@centos7-slave /]# groupadd -g 300 nfs-upload</span><br><span class="line">[root@centos7-slave /]# useradd -u 300 -g 300 nfs-upload</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在客户端挂载，挂载&#x2F;nfsshare目录下</li>
+</ul>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line"># 创建目录</span><br><span class="line">mkdir /nfsshare</span><br><span class="line"># 查看服务器端可挂载点</span><br><span class="line">[root@centos7-slave ~]# showmount -e 192.168.179.170</span><br><span class="line">Export list for 192.168.179.170:</span><br><span class="line">/share *</span><br><span class="line">[root@centos7-slave nfsshare]# </span><br><span class="line"></span><br><span class="line"># 挂载方式1，关机重启会失效</span><br><span class="line">[root@centos7-slave ~]# mount 192.168.179.170:/share/ /nfsshare</span><br><span class="line"></span><br><span class="line"># 方式二修改配置文件，关机重启不失效</span><br><span class="line">[root@centos7-slave ~]# vim /etc/fstab </span><br><span class="line"># 加入如下内容</span><br><span class="line">192.168.179.170:/share                    /nfsshare  nfs     defaults,_netdev 0 0</span><br><span class="line"># 使配置文件生效</span><br><span class="line">[root@centos7-slave nfsshare]# mount -a</span><br><span class="line">[root@centos7-slave nfsshare]# </span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>测试</li>
+</ul>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line"># 在客户端上查看/nfsshare的内容</span><br><span class="line">[root@centos7-slave nfsshare]# ll</span><br><span class="line">total 8</span><br><span class="line">-rw-r--r-- 1 nfs-upload nfs-upload  5 Dec  5 23:14 a.xtx</span><br><span class="line">drwxr-xr-x 2 nfs-upload nfs-upload  6 Dec  5 23:17 newfile</span><br><span class="line">-rw-r--r-- 1 nfs-upload nfs-upload 17 Dec  5 23:11 test.log</span><br><span class="line">[root@centos7-slave nfsshare]# </span><br><span class="line"></span><br><span class="line"># 在服务器端查看/share目录</span><br><span class="line">[root@centos7-master share]# ll</span><br><span class="line">total 8</span><br><span class="line">-rw-r--r-- 1 nfs-upload nfs-upload  5 Dec  5 23:14 a.xtx</span><br><span class="line">drwxr-xr-x 2 nfs-upload nfs-upload  6 Dec  5 23:17 newfile</span><br><span class="line">-rw-r--r-- 1 nfs-upload nfs-upload 17 Dec  5 23:11 test.log</span><br><span class="line">[root@centos7-master share]#</span><br></pre></td></tr></table></figure>
+
+<h1 id="数据的实时同步"><a href="#数据的实时同步" class="headerlink" title="数据的实时同步"></a>数据的实时同步</h1><h3 id="实时同步技术介绍"><a href="#实时同步技术介绍" class="headerlink" title="实时同步技术介绍"></a>实时同步技术介绍</h3><p>实现实时同步的方法</p>
+<ul>
+<li>inotify + rsync 方式实现数据同步</li>
+<li>sersync ：前金山公司周洋（花椒直播）在 inotify 软件基础上进行开发的，功能更加强大</li>
+</ul>
+<p>工作原理：</p>
+<ul>
+<li>要利用监控服务（inotify），监控同步数据服务器目录中信息的变化</li>
+<li>发现目录中数据产生变化，就利用rsync服务推送到备份服务器上</li>
+</ul>
+<p>inotify：<br>异步的文件系统事件监控机制，利用事件驱动机制，而无须通过诸如cron等的轮询机制来获取事件，linux内核从2.6.13起支持 inotify，通过inotify可以监控文件系统中添加、删除，修改、移动等各种事件</p>
+<p><strong>实现inotify软件：</strong></p>
+<ul>
+<li>inotify-tools</li>
+<li>sersync</li>
+<li>lrsyncd</li>
+</ul>
+<p><strong>inotify+rsync使用方式</strong></p>
+<ul>
+<li>inotify 对同步数据目录信息的监控</li>
+<li>rsync 完成对数据的同步</li>
+<li>利用脚本进行结合</li>
+</ul>
+<h3 id="实现-inotify"><a href="#实现-inotify" class="headerlink" title="实现 inotify"></a>实现 inotify</h3><p>内核是否支持inotify<br>Linux支持inotify的内核最小版本为 2.6.13，参看man 7 inotify</p>
+<p><strong>inotify 内核参数说明：</strong></p>
+<ul>
+<li>max_queued_events：inotify 事件队列最大长度，如值太小会出现 Event Queue Overflow 错<br>误，默认值：16384, 生产环境建议调大,比如:327679</li>
+<li>max_user_instances：每个用户创建inotify实例最大值，默认值：128</li>
+<li>max_user_watches：可以监视的文件的总数量（inotifywait 单进程），默认值：8192,建议调大</li>
+</ul>
+<h4 id="inotify-tools工具"><a href="#inotify-tools工具" class="headerlink" title="inotify-tools工具"></a>inotify-tools工具</h4><p>inotify-tools参考文档：<a href="https://github.com/rvoicilas/inotify-tools/wiki">https://github.com/rvoicilas/inotify-tools/wiki</a><br>安装inotify-tools：基于epel源</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">yum install epel-release</span><br><span class="line">yum -y install inotify-tools</span><br></pre></td></tr></table></figure>
+
+<p><strong>inotify-tools包主要工具：</strong></p>
+<ul>
+<li>inotifywait： 在被监控的文件或目录上等待特定文件系统事件（open ，close，delete等）发生，<br>常用于实时同步的目录监控</li>
+<li>inotifywatch：收集被监控的文件系统使用的统计数据，指文件系统事件发生的次数统计</li>
+</ul>
+<p>inotifywait 命令<br>格式:</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">inotifywait [ options ] file1 [ file2 ] [ file3 ] [ ... ]</span><br></pre></td></tr></table></figure>
+
+<p>常用选项</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">-m, --monitor 始终保持事件监听</span><br><span class="line">-d, --daemon 以守护进程方式执行，和-m相似，配合-o使用</span><br><span class="line">-r, --recursive 递归监控目录数据信息变化</span><br><span class="line">-q, --quiet 输出少量事件信息</span><br><span class="line">--exclude &lt;pattern&gt; 指定排除文件或目录，使用扩展的正则表达式匹配的模式实现</span><br><span class="line">--excludei &lt;pattern&gt; 和exclude相似，不区分大小写</span><br><span class="line">-o, --outfile &lt;file&gt; 打印事件到文件中，相当于标准正确输出，注意：使用绝对路径</span><br><span class="line">-s, --syslogOutput 发送错误到syslog相当于标准错误输出</span><br><span class="line">--timefmt &lt;fmt&gt; 指定时间输出格式</span><br><span class="line">--format &lt;fmt&gt; 指定的输出格式；即实际监控输出内容</span><br><span class="line">-e</span><br></pre></td></tr></table></figure>
+
+<p><strong>inotifywait 的–timefmt 时间格式</strong><br>参考 man 3 strftime</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">%Y #年份信息，包含世纪信息</span><br><span class="line">%y #年份信息，不包括世纪信息</span><br><span class="line">%m #显示月份，范围 01-12</span><br><span class="line">%d #每月的第几天，范围是 01-31</span><br><span class="line">%H #小时信息，使用 24小时制，范围 00-23</span><br><span class="line">%M #分钟，范围 00-59</span><br><span class="line">%S #秒，范例 0-60</span><br></pre></td></tr></table></figure>
+
+<p>范例：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">--timefmt &quot;%Y-%m-%d %H:%M:%S&quot;</span><br></pre></td></tr></table></figure>
+
+<p><strong>inotifywait 的 –format 格式定义</strong></p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">%T #输出时间格式中定义的时间格式信息，通过 --timefmt option 语法格式指定时间信息</span><br><span class="line">%w #事件出现时，监控文件或目录的名称信息，相当于dirname</span><br><span class="line">%f #事件出现时，将显示监控目录下触发事件的文件或目录信息，否则为空，相当于basename</span><br><span class="line">%e #显示发生的事件信息，不同的事件默认用逗号分隔</span><br><span class="line">%Xe #显示发生的事件信息，不同的事件指定用X进行分隔</span><br></pre></td></tr></table></figure>
+
+<p>范例</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">--format &quot;%T %w%f event: %;e&quot;</span><br><span class="line">--format &#x27;%T %w %f&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>inotifywait -e 选项指定的事件类型</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">create #文件或目录创建</span><br><span class="line">delete #文件或目录被删除</span><br><span class="line">modify #文件或目录内容被写入</span><br><span class="line">attrib #文件或目录属性改变</span><br><span class="line">close_write #文件或目录关闭，在写入模式打开之后关闭的</span><br><span class="line">close_nowrite #文件或目录关闭，在只读模式打开之后关闭的</span><br><span class="line">close #文件或目录关闭，不管读或是写模式</span><br><span class="line">open #文件或目录被打开</span><br><span class="line">lsdir #浏览目录内容</span><br><span class="line">moved_to #文件或目录被移动到监控的目录中</span><br><span class="line">moved_from #文件或目录从监控的目录中被移动</span><br><span class="line">move #文件或目录不管移动到或是移出监控目录都触发事件</span><br><span class="line">access #文件或目录内容被读取</span><br><span class="line">delete_self #文件或目录被删除，目录本身被删除</span><br><span class="line">unmount #取消挂载</span><br></pre></td></tr></table></figure>
+
+<p>范例</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">-e create,delete,moved_to,close_write,attrib</span><br></pre></td></tr></table></figure>
+
+<p>范例：使用inotifywait</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line"># 监控一次事件</span><br><span class="line">[root@centos7 /]# inotifywait /data/www/</span><br><span class="line">Setting up watches.</span><br><span class="line">Watches established.</span><br><span class="line">/data/www/ CREATE,ISDIR html</span><br><span class="line">[root@centos7 /]# </span><br><span class="line"></span><br><span class="line"># 持续前台监控</span><br><span class="line">[root@centos7 /]# inotifywait -mrq /data/www --exclude=&quot;.*\.swx|\.swp&quot;</span><br><span class="line">/data/www/ OPEN,ISDIR </span><br><span class="line">/data/www/ CLOSE_NOWRITE,CLOSE,ISDIR </span><br><span class="line">/data/www/ CREATE mysql.log</span><br><span class="line">/data/www/ OPEN mysql.log</span><br><span class="line">/data/www/ ATTRIB mysql.log</span><br><span class="line">/data/www/ CLOSE_WRITE,CLOSE mysql.log</span><br><span class="line">/data/www/ OPEN,ISDIR </span><br><span class="line">/data/www/ CLOSE_NOWRITE,CLOSE,ISDIR </span><br><span class="line">/data/www/ MODIFY mysql.log</span><br><span class="line">/data/www/ OPEN mysql.log</span><br><span class="line">/data/www/ MODIFY mysql.log</span><br><span class="line">/data/www/ CLOSE_WRITE,CLOSE mysql.log</span><br><span class="line">/data/www/ OPEN,ISDIR </span><br><span class="line">/data/www/ CLOSE_NOWRITE,CLOSE,ISDIR </span><br><span class="line">/data/www/ OPEN mysql.log</span><br><span class="line">/data/www/ ACCESS mysql.log</span><br><span class="line">/data/www/ CLOSE_NOWRITE,CLOSE mysql.log</span><br><span class="line"></span><br><span class="line">#持续后台监控，并记录日志</span><br><span class="line">inotifywait -o /root/inotify.log -drq /data/www --timefmt &quot;%Y-%m-%d %H:%M:%S&quot; --</span><br><span class="line">format &quot;%T %w%f event: %e&quot;</span><br><span class="line">#持续前台监控特定事件</span><br><span class="line">inotifywait -mrq /data/www --timefmt &quot;%F %H:%M:%S&quot; --format &quot;%T %w%f event:</span><br><span class="line">%;e&quot; -e create,delete,moved_to,close_write,attrib</span><br></pre></td></tr></table></figure>
+
+<h2 id="rsync-服务"><a href="#rsync-服务" class="headerlink" title="rsync 服务"></a>rsync 服务</h2><p>rsync 常用于做为 linux系统下的数据镜像备份工具，实现远程同步，支持本地复制，或者与其他SSH、<br>rsync主机同步数据，支持增量备份，配合任务计划，rsync能实现定时或间隔同步，配合inotify或<br>sersync，可以实现触发式的实时数据同步<br>官方网站: <a href="http://rsync.samba.org/">http://rsync.samba.org/</a></p>
+<p>软件包：rsync，rsync-daemon（CentOS 8）<br>服务文件：&#x2F;usr&#x2F;lib&#x2F;systemd&#x2F;system&#x2F;rsyncd.service<br>配置文件：&#x2F;etc&#x2F;rsyncd.conf<br>端口：873&#x2F;tcp</p>
+<h4 id="rsync命令"><a href="#rsync命令" class="headerlink" title="rsync命令"></a>rsync命令</h4><p>rsync 格式</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">#Local:</span><br><span class="line">rsync [OPTION...] SRC... [DEST]</span><br><span class="line">#Access via remote shell:</span><br><span class="line">Pull:</span><br><span class="line">rsync [OPTION...] [USER@]HOST:SRC... [DEST]</span><br><span class="line">Push:</span><br><span class="line">rsync [OPTION...] SRC... [USER@]HOST:DEST</span><br><span class="line">#Access via rsync daemon:</span><br><span class="line">Pull:</span><br><span class="line">rsync [OPTION...] [USER@]HOST::SRC... [DEST]</span><br><span class="line">rsync [OPTION...] rsync://[USER@]HOST[:PORT]/SRC... [DEST]</span><br><span class="line">Push:</span><br><span class="line">rsync [OPTION...] SRC... [USER@]HOST::DEST</span><br><span class="line">rsync [OPTION...] SRC... rsync://[USER@]HOST[:PORT]/DEST</span><br><span class="line">The &#x27;:&#x27; usages connect via remote shell, while &#x27;::&#x27; &amp; &#x27;rsync://&#x27; usages connect</span><br><span class="line">to an rsync daemon, and require SRC or DEST to start with a module name.</span><br></pre></td></tr></table></figure>
+
+<p>rsync有三种工作方式：</p>
+<ol>
+<li>本地文件系统上实现同步。命令行语法格式为上述”Local”段的格式。</li>
+<li>本地主机使用远程shell和远程主机通信。命令行语法格式为上述”Access via remote shell”段的格<br>式。</li>
+<li>本地主机通过网络套接字连接远程主机上的rsync daemon。命令行语法格式为上述”Access via<br>rsync daemon”段的格式。<br>前两者的本质是通过本地或远程shell，而第3种方式则是让远程主机上运行rsyncd服务，使其监听在一<br>个端口上，等待客户端的连接。<br>常见选项：</li>
+</ol>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">-v：显示rsync过程中详细信息。可以使用&quot;-vvvv&quot;获取更详细信息。</span><br><span class="line">-P：显示文件传输的进度信息。(实际上&quot;-P&quot;=&quot;--partial --progress&quot;，其中的&quot;--progress&quot;才是显</span><br><span class="line">示进度信息的)。</span><br><span class="line">-n --dry-run ：仅测试传输，而不实际传输。常和&quot;-vvvv&quot;配合使用来查看rsync是如何工作的。</span><br><span class="line">-a --archive ：归档模式，表示递归传输并保持文件属性。等同于&quot;-rtopgDl&quot;。</span><br><span class="line">-r --recursive：递归到目录中去。</span><br><span class="line">-t --times：保持mtime属性。强烈建议任何时候都加上&quot;-t&quot;，否则目标文件mtime会设置为系统时间，导</span><br><span class="line">致下次更新</span><br><span class="line">：检查出mtime不同从而导致增量传输无效。</span><br><span class="line">-o --owner：保持owner属性(属主)。</span><br><span class="line">-g --group：保持group属性(属组)。</span><br><span class="line">-p --perms：保持perms属性(权限，不包括特殊权限)</span><br><span class="line">-D ：是&quot;--device --specials&quot;选项的组合，即也拷贝设备文件和特殊文件。</span><br><span class="line">-l --links：如果文件是软链接文件，则拷贝软链接本身而非软链接所指向的对象</span><br><span class="line">-z ：传输时进行压缩提高效率</span><br><span class="line">-R --relative：使用相对路径。意味着将命令行中指定的全路径而非路径最尾部的文件名发送给服务端，</span><br><span class="line">包括它们的属性。用法见下文示例。</span><br><span class="line">--size-only ：默认算法是检查文件大小和mtime不同的文件，使用此选项将只检查文件大小。</span><br><span class="line">-u --update ：仅在源mtime比目标已存在文件的mtime新时才拷贝。注意，该选项是接收端判断的，不会</span><br><span class="line">影响删除行为。</span><br><span class="line">-d --dirs ：以不递归的方式拷贝目录本身。默认递归时，如果源为&quot;dir1/file1&quot;，则不会拷贝dir1</span><br><span class="line">目录，使用该选项将拷贝dir1但不拷贝file1。</span><br><span class="line">--max-size ：限制rsync传输的最大文件大小。可以使用单位后缀，还可以是一个小数值(例如：&quot;--</span><br><span class="line">max-size=1.5m&quot;)</span><br><span class="line">--min-size ：限制rsync传输的最小文件大小。这可以用于禁止传输小文件或那些垃圾文件。</span><br><span class="line">--exclude ：指定排除规则来排除不需要传输的文件。</span><br><span class="line">--delete ：以SRC为主，对DEST进行同步。多则删之，少则补之。注意&quot;--delete&quot;是在接收端执行</span><br><span class="line">的，所以它是在</span><br><span class="line">：exclude/include规则生效之后才执行的。</span><br><span class="line">-b --backup ：对目标上已存在的文件做一个备份，备份的文件名后默认使用&quot;~&quot;做后缀。</span><br><span class="line">--backup-dir：指定备份文件的保存路径。不指定时默认和待备份文件保存在同一目录下。</span><br><span class="line">-e ：指定所要使用的远程shell程序，默认为ssh。</span><br><span class="line">--port ：连接daemon时使用的端口号，默认为873端口。</span><br><span class="line">--password-file：daemon模式时的密码文件，可以从中读取密码实现非交互式。注意，这不是远程shell</span><br><span class="line">认证的密码，而是rsync模块认证的密码。</span><br><span class="line">-W --whole-file：rsync将不再使用增量传输，而是全量传输。在网络带宽高于磁盘带宽时，该选项比增</span><br><span class="line">量传输更高效。</span><br><span class="line">--existing ：要求只更新目标端已存在的文件，目标端还不存在的文件不传输。注意，使用相对路径时如</span><br><span class="line">果上层目录不存在也不会传输。</span><br><span class="line">--ignore-existing：要求只更新目标端不存在的文件。和&quot;--existing&quot;结合使用有特殊功能，见下文示</span><br><span class="line">例。</span><br><span class="line">--remove-source-files：要求删除源端已经成功传输的文件</span><br></pre></td></tr></table></figure>
+
+<p> 范例：两种格式访问 rsync daemon 服务 </p>
+<p><img src="/../image.assets/1670396738139.png" alt="1670396738139"></p>
+<ul>
+<li>环境</li>
+</ul>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">data-server:192.168.179.171(数据服务器)</span><br><span class="line">backup-server:192.168.179.165(备份服务器)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">#在备份服务器启动 rsync 进程</span><br><span class="line">[root@centos8-backup ~]#rsync --daemon</span><br><span class="line">Failed to parse config file: /etc/rsyncd.conf</span><br><span class="line">[root@centos8-backup ~]#touch /etc/rsyncd.conf</span><br><span class="line">[root@centos8-backup ~]#rsync --daemon</span><br><span class="line">[root@centos8-backup /]# cat /etc/rsyncd.conf </span><br><span class="line">[backup]</span><br><span class="line">path = /web/www/</span><br><span class="line">read only = no </span><br><span class="line">[root@centos8-backup /]# </span><br><span class="line">#指定目录给nobody权限，默认用户以nobody访问此目录</span><br><span class="line">[root@centos8-backup ~]#setfacl -m u:nobody:rwx /data/backup/</span><br><span class="line">#查看rsync服务器的模块名称</span><br><span class="line">[root@centos7-slave /]# rsync rsync://192.168.179.165</span><br><span class="line">backup    	</span><br><span class="line">[root@centos7-slave /]# </span><br><span class="line">[root@centos7-slave /]# rsync 192.168.179.165::</span><br><span class="line">backup</span><br><span class="line"></span><br><span class="line">#访问rsync服务器的共享目录</span><br><span class="line">#推</span><br><span class="line">[root@centos7-slave /]# rsync /xy.log 192.168.179.165::backup</span><br><span class="line">[root@centos7-slave /]# rsync /etc/shells rsync://root@192.168.179.165/backup</span><br><span class="line"></span><br><span class="line">[root@centos7-slave /]#rsync 192.168.179.165::backup/* /opt</span><br><span class="line">[root@centos7-slave /]#rsync rsync://192.168.179.165/backup/* /mnt</span><br></pre></td></tr></table></figure>
+
+<p>范例：以独立服务方式运行 rsync</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line"># 修改配置文件</span><br><span class="line">[root@centos8-backup etc]# cat rsyncd.conf</span><br><span class="line">#uid = root #提定以哪个用户来访问共享目录，将之指定为生成的文件所有者，默认为nobody</span><br><span class="line">#gid = root #默认为nobody,Ubuntu中为nogroup</span><br><span class="line">#port = 874 可指定非标准端口,默认873/tcp</span><br><span class="line">#use chroot = no</span><br><span class="line">#max connections = 0</span><br><span class="line">#ignore errors</span><br><span class="line">#exclude = lost+found/</span><br><span class="line">#log file = /var/log/rsyncd.log</span><br><span class="line">#pid file = /var/run/rsyncd.pid</span><br><span class="line">#lock file = /var/run/rsyncd.lock</span><br><span class="line">#reverse lookup = no</span><br><span class="line">#hosts allow = 10.0.0.0/24</span><br><span class="line">#[backup] #每个模块名对应一个不同的path目录，如果同名后面模块生效</span><br><span class="line">#path = /data/backup/</span><br><span class="line">#comment = backup dir</span><br><span class="line">#read only = no #默认是yes,即只读</span><br><span class="line">#auth users = rsyncuser #默认anonymous可以访问rsync服务器</span><br><span class="line">#secrets file = /etc/rsync.pas</span><br><span class="line"># /etc/rsyncd: configuration file for rsync daemon mode</span><br><span class="line"></span><br><span class="line"># See rsyncd.conf man page for more options.</span><br><span class="line"></span><br><span class="line"># configuration example:</span><br><span class="line"></span><br><span class="line"># uid = nobody</span><br><span class="line"># gid = nobody</span><br><span class="line"># use chroot = yes</span><br><span class="line"># max connections = 4</span><br><span class="line"># pid file = /var/run/rsyncd.pid</span><br><span class="line"># exclude = lost+found/</span><br><span class="line"># transfer logging = yes</span><br><span class="line"># timeout = 900</span><br><span class="line"># ignore nonreadable = yes</span><br><span class="line"># dont compress   = *.gz *.tgz *.zip *.z *.Z *.rpm *.deb *.bz2</span><br><span class="line"></span><br><span class="line"># [ftp]</span><br><span class="line">#        path = /home/ftp</span><br><span class="line">#        comment = ftp export area</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">uid = root </span><br><span class="line">gid = root  </span><br><span class="line">max connections = 0</span><br><span class="line">ignore errors</span><br><span class="line">exclude = lost+found/</span><br><span class="line">log file = /var/log/rsyncd.log</span><br><span class="line">pid file = /var/run/rsyncd.pid</span><br><span class="line">lock file = /var/run/rsyncd.lock</span><br><span class="line">reverse lookup = no</span><br><span class="line"></span><br><span class="line">[backup] </span><br><span class="line">path = /web/backup/  </span><br><span class="line">comment = backup dir</span><br><span class="line">read only = no </span><br><span class="line">auth users = rsyncuser  </span><br><span class="line">secrets file = /etc/rsync.pas</span><br><span class="line"></span><br><span class="line">[root@centos8-backup etc]# </span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#服务器端生成验证文件</span><br><span class="line">[root@centos8-backup ~]#echo &quot;rsyncuser:123456&quot; &gt; /etc/rsync.pas</span><br><span class="line">[root@centos8-backup ~]#chmod 600 /etc/rsync.pas</span><br><span class="line"></span><br><span class="line">#服务器端启动rsync服务</span><br><span class="line">[root@centos8-backup ~]#rsync --daemon #可加入/etc/rc.d/rc.local实现开</span><br><span class="line">机启动</span><br><span class="line"></span><br><span class="line">#客户端配置密码文件</span><br><span class="line">#也可将密码赋值给环境变量RSYNC_PASSWORD变量,但不安全</span><br><span class="line">#export RSYNC_PASSWORD=123456</span><br><span class="line">[root@centos7-slave ~]#echo &quot;123456&quot; &gt; /etc/rsync.pas</span><br><span class="line">[root@centos7-slave ~]#chmod 600 /etc/rsync.pas #此为必要项,权限必须修改</span><br><span class="line"></span><br><span class="line">#查看远程rsync服务器的模块信息</span><br><span class="line">[root@centos7-slave etc]# rsync rsync://192.168.179.165</span><br><span class="line">backup         	backup dir</span><br><span class="line">[root@centos7-slave etc]# </span><br><span class="line"></span><br><span class="line">#交互式验证查看具体模块内的文件</span><br><span class="line">[root@centos7-slave etc]# rsync rsync://rsyncuser@192.168.179.165/backup</span><br><span class="line">Password: </span><br><span class="line"></span><br><span class="line">#非交互式查看共享目录</span><br><span class="line">[root@centos7-slave etc]# rsync --password-file=/etc/rsync.pas rsync://rsyncuser@192.168.179.165/backup</span><br><span class="line">drwxrwxrwx             34 2022/12/07 16:20:07 .</span><br><span class="line">-rw-r--r--              0 2022/12/07 16:20:07 xy.log</span><br><span class="line">-rw-r--r--              0 2022/12/07 16:09:50 zz.log</span><br><span class="line">[root@centos7-slave etc]# </span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#客户端测试同步数据</span><br><span class="line">[root@data-centos8 ~]#rsync -avz --delete --password-file=/etc/rsync.pas /data/www/ rsyncuser@rsync服务器IP::backup</span><br><span class="line">[root@data-centos8 ~]#rsync -avz --delete --password-file=/etc/rsync.pas rsyncuser@rsync服务器IP::backup /data/www/</span><br></pre></td></tr></table></figure>
+
+<h3 id="inotify-rsync-shell-脚本实现实时数据同步"><a href="#inotify-rsync-shell-脚本实现实时数据同步" class="headerlink" title="inotify+rsync+shell 脚本实现实时数据同步"></a>inotify+rsync+shell 脚本实现实时数据同步</h3><p><img src="/../image.assets/1670403695085.png" alt="1670403695085"></p>
+<p>按 5.3 搭建好 rsyncd的备份服务器，在数据服务器上创建inotify_rsync.sh脚本<br>注意: 此脚本执行前先确保两主机初始数据处于同步状态,此脚本实现后续的数据同步</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">[root@centos7-slave ~]# vim inotify_rsync.sh </span><br><span class="line">#!/bin/bash</span><br><span class="line">SRC=&#x27;/data/www/&#x27; #注意最后的/</span><br><span class="line">DEST=&#x27;rsyncuser@rsync服务器IP::backup&#x27;</span><br><span class="line">rpm -q inotify-tools &amp;&gt; /dev/null ||yum -y install inotify-tools</span><br><span class="line">rpm -q rsync &amp;&gt; /dev/null || yum -y install rsync</span><br><span class="line">inotifywait -mrq --exclude=&quot;.*\.swp&quot; --timefmt &#x27;%Y-%m-%d %H:%M:%S&#x27; --format</span><br><span class="line">&#x27;%T %w %f&#x27; -e create,delete,moved_to,close_write,attrib $&#123;SRC&#125; |while read DATE</span><br><span class="line">TIME DIR FILE;do</span><br><span class="line">FILEPATH=$&#123;DIR&#125;$&#123;FILE&#125;</span><br><span class="line">rsync -az --delete --password-file=/etc/rsync.pas $SRC $DEST &amp;&amp; echo</span><br><span class="line">&quot;At $&#123;TIME&#125; on $&#123;DATE&#125;, file $FILEPATH was backuped up via rsync&quot; &gt;&gt;</span><br><span class="line">/var/log/changelist.log</span><br><span class="line">done</span><br><span class="line">#查看文件传输日志</span><br><span class="line">[root@centos7-slave www]# tail -f /var/log/changelist.log </span><br></pre></td></tr></table></figure>
+
+<h2 id="sersync-实现实时数据同步"><a href="#sersync-实现实时数据同步" class="headerlink" title="sersync 实现实时数据同步"></a>sersync 实现实时数据同步</h2><h3 id="sersync-介绍"><a href="#sersync-介绍" class="headerlink" title="sersync 介绍"></a>sersync 介绍</h3><p>sersync类似于inotify，同样用于监控，但它克服了inotify的缺点.<br>inotify最大的不足是会产生重复事件，或者同一个目录下多个文件的操作会产生多个事件，例如，当监<br>控目录中有5个文件时，删除目录时会产生6个监控事件，从而导致重复调用rsync命令。另外比如：vim<br>文件时，inotify会监控到临时文件的事件，但这些事件相对于rsync来说是不应该被监控的</p>
+<p><strong>sersync 优点：</strong></p>
+<ul>
+<li>sersync是使用c++编写，而且对linux系统文件系统产生的临时文件和重复的文件操作进行过滤，<br>所以在结合rsync同步的时候，节省了运行时耗和网络资源。因此更快。</li>
+<li>sersync配置很简单，其中提供了静态编译好的二进制文件和xml配置文件，直接使用即可</li>
+<li>sersync使用多线程进行同步，尤其在同步较大文件时，能够保证多个服务器实时保持同步状态</li>
+<li>sersync有出错处理机制，通过失败队列对出错的文件重新同步，如果仍旧失败，则按设定时长对<br>同步失败的文件重新同步</li>
+<li>sersync不仅可以实现实时同步，另外还自带crontab功能，只需在xml配置文件中开启，即也可以<br>按要求隔一段时间整体同步一次，而无需再额外配置crontab功能</li>
+<li>sersync 可以二次开发</li>
+</ul>
+<p>sersync项目地址： <a href="https://code.google.com/archive/p/sersync/">https://code.google.com/archive/p/sersync/</a><br>sersync下载地址： <a href="https://code.google.com/archive/p/sersync/downloads">https://code.google.com/archive/p/sersync/downloads</a></p>
+<h3 id="基于rsync-daemon-实现-sersync"><a href="#基于rsync-daemon-实现-sersync" class="headerlink" title="基于rsync daemon 实现 sersync"></a>基于rsync daemon 实现 sersync</h3><figure class="highlight text"><table><tr><td class="code"><pre><span class="line"># #在数据服务器上下载sersync，并拷贝至相应的目录，设置PATH变量</span><br><span class="line">wget https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/sersync/sersync2.5.4_64bit_binary_stable_final.tar.gz</span><br><span class="line"></span><br><span class="line">[root@centos7-slave ~]# tar -vxf sersync2.5.4_64bit_binary_stable_final.tar.gz </span><br><span class="line">[root@centos7-slave ~]# cp -r GNU-Linux-x86/ /usr/local/sersync</span><br><span class="line">[root@centos7-slave sersync]# echo &#x27;PATH=/usr/local/sersync:$PATH&#x27; &gt; /etc/profile.d/sersync.sh</span><br><span class="line">[root@centos7-slave sersync]# source /etc/profile.d/sersync.sh</span><br><span class="line">[root@centos7-slave sersync]# </span><br><span class="line"></span><br><span class="line">#确认安装rsync客户端工具</span><br><span class="line">rpm -q rsync &amp;&gt; /dev/null || dnf -y install rsync</span><br><span class="line"></span><br><span class="line">#备份sersync配置文件</span><br><span class="line">cp /usr/local/sersync/confxml.xml&#123;,.bak&#125;</span><br><span class="line"># 修改配置文件</span><br><span class="line">vim /usr/local/sersync/confxml.xml</span><br><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;ISO-8859-1&quot;?&gt;</span><br><span class="line">&lt;head version=&quot;2.5&quot;&gt;</span><br><span class="line">&lt;host hostip=&quot;localhost&quot; port=&quot;8008&quot;&gt;&lt;/host&gt;</span><br><span class="line">&lt;debug start=&quot;false&quot;/&gt; # 是否开启调试模式</span><br><span class="line">&lt;fileSystem xfs=&quot;false&quot;/&gt;</span><br><span class="line">&lt;filter start=&quot;false&quot;&gt; #不开启文件过滤功能，当为true时,以下类型的文件将不同</span><br><span class="line">步</span><br><span class="line">&lt;exclude expression=&quot;(.*)\.svn&quot;&gt;&lt;/exclude&gt;</span><br><span class="line">&lt;exclude expression=&quot;(.*)\.gz&quot;&gt;&lt;/exclude&gt;</span><br><span class="line">&lt;exclude expression=&quot;^info/*&quot;&gt;&lt;/exclude&gt;</span><br><span class="line">&lt;exclude expression=&quot;^static/*&quot;&gt;&lt;/exclude&gt;</span><br><span class="line">&lt;/filter&gt;</span><br><span class="line">&lt;inotify&gt; # 监控事件，默认监控</span><br><span class="line">delete/close_write/moved_from/moved_to/create folder</span><br><span class="line">&lt;delete start=&quot;true&quot;/&gt;</span><br><span class="line">&lt;createFolder start=&quot;true&quot;/&gt;</span><br><span class="line">&lt;createFile start=&quot;false&quot;/&gt;</span><br><span class="line">&lt;closeWrite start=&quot;true&quot;/&gt;</span><br><span class="line">&lt;moveFrom start=&quot;true&quot;/&gt;</span><br><span class="line">&lt;moveTo start=&quot;true&quot;/&gt;</span><br><span class="line">&lt;attrib start=&quot;true&quot;/&gt; #修改此行为true，文件属性变化后也会同步</span><br><span class="line">&lt;modify start=&quot;false&quot;/&gt;</span><br><span class="line">&lt;/inotify&gt;</span><br><span class="line">&lt;sersync&gt; # rsync命令的配置段</span><br><span class="line">&lt;localpath watch=&quot;/data/www&quot;&gt; #修改此行,需要同步的源目录或文件，建议同步目</span><br><span class="line">录</span><br><span class="line">&lt;remote ip=&quot;备份服务器IP&quot; name=&quot;backup&quot;/&gt; #修改此行,指定备份服务器地址和rsync</span><br><span class="line">daemon的模块名，如果下面开启了ssh start，此时name为远程shell方式运行时的目标目录</span><br><span class="line">&lt;!--&lt;remote ip=&quot;192.168.8.39&quot; name=&quot;tongbu&quot;/&gt;--&gt;</span><br><span class="line">&lt;!--&lt;remote ip=&quot;192.168.8.40&quot; name=&quot;tongbu&quot;/&gt;--&gt;</span><br><span class="line">&lt;/localpath&gt;</span><br><span class="line">&lt;rsync&gt;</span><br><span class="line">&lt;commonParams params=&quot;-artuz&quot;/&gt; # 指定rsync选项</span><br><span class="line">&lt;auth start=&quot;true&quot; users=&quot;rsyncuser&quot; passwordfile=&quot;/etc/rsync.pas&quot;/&gt; #修</span><br><span class="line">改此行为true,指定备份服务器的rsync配置的用户和密码文件</span><br><span class="line">&lt;userDefinedPort start=&quot;false&quot; port=&quot;874&quot;/&gt;&lt;!-- port=874 --&gt;#指定rsync的非</span><br><span class="line">标准端口号</span><br><span class="line">&lt;timeout start=&quot;false&quot; time=&quot;100&quot;/&gt;&lt;!-- timeout=100 --&gt;</span><br><span class="line">&lt;ssh start=&quot;false&quot;/&gt; #默认使用rsync daemon运行rsync命令,true为使用远程shell模</span><br><span class="line">式</span><br><span class="line">&lt;/rsync&gt;</span><br><span class="line">&lt;failLog path=&quot;/tmp/rsync_fail_log.sh&quot; timeToExecute=&quot;60&quot;/&gt;&lt;!--default every</span><br><span class="line">60mins execute once--&gt; #错误重传及日志文件路径</span><br><span class="line">&lt;crontab start=&quot;false&quot; schedule=&quot;600&quot;&gt;&lt;!--600mins--&gt; #不开启crontab功能</span><br><span class="line">&lt;crontabfilter start=&quot;false&quot;&gt; #不开启crontab定时传输的筛选功能</span><br><span class="line">&lt;exclude expression=&quot;*.php&quot;&gt;&lt;/exclude&gt;</span><br><span class="line">&lt;exclude expression=&quot;info/*&quot;&gt;&lt;/exclude&gt;</span><br><span class="line">&lt;/crontabfilter&gt;</span><br><span class="line">&lt;/crontab&gt;</span><br><span class="line">&lt;plugin start=&quot;false&quot; name=&quot;command&quot;/&gt;</span><br><span class="line">&lt;/sersync&gt;</span><br><span class="line">#####################################以下行不需要修改</span><br><span class="line">####################################</span><br><span class="line">&lt;plugin name=&quot;command&quot;&gt;</span><br><span class="line">&lt;param prefix=&quot;/bin/sh&quot; suffix=&quot;&quot; ignoreError=&quot;true&quot;/&gt; &lt;!--prefix</span><br><span class="line">/opt/tongbu/mmm.sh suffix--&gt;</span><br><span class="line">&lt;filter start=&quot;false&quot;&gt;</span><br><span class="line">&lt;include expression=&quot;(.*)\.php&quot;/&gt;</span><br><span class="line">&lt;include expression=&quot;(.*)\.sh&quot;/&gt;</span><br><span class="line">&lt;/filter&gt;</span><br><span class="line">&lt;/plugin&gt;</span><br><span class="line">&lt;plugin name=&quot;socket&quot;&gt;</span><br><span class="line">&lt;localpath watch=&quot;/opt/tongbu&quot;&gt;</span><br><span class="line">&lt;deshost ip=&quot;192.168.138.20&quot; port=&quot;8009&quot;/&gt;</span><br><span class="line">&lt;/localpath&gt;</span><br><span class="line">&lt;/plugin&gt;</span><br><span class="line">&lt;plugin name=&quot;refreshCDN&quot;&gt;</span><br><span class="line">&lt;localpath watch=&quot;/data0/htdocs/cms.xoyo.com/site/&quot;&gt;</span><br><span class="line">&lt;cdninfo domainname=&quot;ccms.chinacache.com&quot; port=&quot;80&quot; username=&quot;xxxx&quot;</span><br><span class="line">passwd=&quot;xxxx&quot;/&gt;</span><br><span class="line">&lt;sendurl base=&quot;http://pic.xoyo.com/cms&quot;/&gt;</span><br><span class="line"> &lt;regexurl regex=&quot;false&quot; match=&quot;cms.xoyo.com/site([/a-zA-Z0-</span><br><span class="line">9]*).xoyo.com/images&quot;/&gt;</span><br><span class="line">&lt;/localpath&gt;</span><br><span class="line">&lt;/plugin&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#创建连接rsynd服务器的用户密码文件,并必须修改权限</span><br><span class="line">echo 123456 &gt; /etc/rsync.pas</span><br><span class="line">chmod 600 /etc/rsync.pas</span><br><span class="line">#查看帮助</span><br><span class="line">sersync2 -h</span><br><span class="line">set the system param</span><br><span class="line">execute：echo 50000000 &gt; /proc/sys/fs/inotify/max_user_watches</span><br><span class="line">execute：echo 327679 &gt; /proc/sys/fs/inotify/max_queued_events</span><br><span class="line">parse the command param</span><br><span class="line"></span><br><span class="line">_______________________________________________________</span><br><span class="line">参数-d:启用守护进程模式</span><br><span class="line">参数-r:在监控前，将监控目录与远程主机用rsync命令推送一遍</span><br><span class="line">c参数-n: 指定开启守护线程的数量，默认为10个</span><br><span class="line">参数-o:指定配置文件，默认使用当前工作目录下的confxml.xml文件</span><br><span class="line">参数-m:单独启用其他模块，使用 -m refreshCDN 开启刷新CDN模块</span><br><span class="line">参数-m:单独启用其他模块，使用 -m socket 开启socket模块</span><br><span class="line">参数-m:单独启用其他模块，使用 -m http 开启http模块</span><br><span class="line">不加-m参数，则默认执行同步程序</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#以后台方式执行同步</span><br><span class="line">sersync2 -dro /usr/local/sersync/confxml.xml</span><br><span class="line"></span><br><span class="line">#如果同步失败,可以手动执行下面命令,观察过程</span><br><span class="line">cd /data/www &amp;&amp; rsync -artuz -R --delete ./ rsyncuser@backup-server::backup --password-file=/etc/rsync.pas &gt;/dev/null 2&gt;&amp;1</span><br><span class="line"></span><br><span class="line">#sersync支持多实例，也即监控多个目录时，只需分别配置不同配置文件，然后使用sersync2指定对应配置文件运行</span><br><span class="line">sersync2 -rd -o /etc/sersync.d/nginx.xml</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>Linux基础</category>
+      </categories>
+      <tags>
+        <tag>Linux从入门到放弃</tag>
       </tags>
   </entry>
   <entry>
